@@ -5,7 +5,7 @@
     <a class="btn btn-primary" asp-action="CreateEditProduct">Create Product</a>
 </div>
 
-
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
 <table class="table">
     <thead>
         <tr>
@@ -13,7 +13,7 @@
             <th>Code</th>
             <th>Price</th>
             <th>Description</th>
-            <th>Actions</th>
+            <th style="text-align:center;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -42,12 +42,17 @@
                     <input type="text" value="@product.Description" class="form-control" />
                 </td>
                 
-                <td>
+                <td style="text-align:center;">
                     <!-- Edit/Save Button -->
                     <button class="btn btn-sm btn-primary edit-btn" 
                             data-id="@product.ProductID" 
                             onclick="toggleEditMode(@product.ProductID)">
                         Edit
+                    </button>
+
+                    <!-- Details Button -->
+                    <button class="btn btn-sm btn-info details-btn" data-id="@product.ProductID">
+                        Details
                     </button>
                     
                     <!-- Delete Button -->
@@ -61,6 +66,25 @@
         }
     </tbody>
 </table>
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     function toggleEditMode(productId) {
         console.log("Edit clicked for product:", productId); // Debug
@@ -109,6 +133,76 @@
                 alert('Error updating product');
             }
         });
+    }
+
+function tableSearch(){
+       let input, table, filter, tr, td, i, txtValue;
+
+       //initializing variables
+       input = document.getElementById("myInput");
+       filter = input.value.toUpperCase();
+       table = document.getElementsByClassName("table")[0];
+       tr = table.getElementsByTagName("tr");
+
+           
+       for(let i = 0; i < tr.length; i++){
+           td = tr[i].getElementsByTagName("td")[0];
+           @* console.log(td); *@
+           if(td){
+               txtValue = td.textContent || td.innerText;
+               if(txtValue.toUpperCase().indexOf(filter) > -1){
+                   tr[i].style.display = ""
+               }
+               else{
+                   tr[i].style.display = "none"
+
+               }
+           }
+       }
+
+}
+
+
+</script>
+
+<script>
+    // Bootstrap version
+    document.querySelectorAll('.details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            var productId = this.getAttribute('data-id');
+            showProductDetails(productId);
+        });
+    });
+
+    function showProductDetails(productId) {
+        var row = document.getElementById('row-' + productId);
+
+        if (row) {
+            var cells = row.getElementsByTagName('td');
+            var detailsHtml = `
+
+                <div class="detail-item">
+                    <strong>Product ID:</strong> ${productId}
+                </div>
+
+                <div class="detail-item">
+                    <strong>Code:</strong> ${cells[0].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Price:</strong> ${cells[1].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Description:</strong> ${cells[2].querySelector('span').textContent}
+                </div>
+                
+            `;
+
+            document.getElementById('modalBody').innerHTML = detailsHtml;
+
+            // Show Bootstrap modal
+            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
     }
 </script>
 @* <a href="/Home/Index" class="btn btn-secondary">Back to Home</a> *@
