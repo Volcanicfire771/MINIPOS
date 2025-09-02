@@ -1,0 +1,114 @@
+﻿@model IEnumerable<POSSystemMVC.Models.Product>
+
+<div style="display:flex;justify-content:space-between;">
+    <h2>All Products</h2>
+    <a class="btn btn-primary" asp-action="CreateEditProduct">Create Product</a>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            @* <th>Product Name</th> *@
+            <th>Code</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr id="row-@product.ProductID">
+                <!-- Display Mode -->
+                <td class="view-mode">
+                    <span>@product.code</span>
+                </td>
+                <td class="view-mode">
+                    <span>@product.CostPrice.ToString("C")</span>
+                </td>
+                <td class="view-mode">
+                    <span>@product.Description</span>
+                </td>
+                
+                <!-- Edit Mode (hidden initially) -->
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@product.code" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="number" value="@product.CostPrice" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@product.Description" class="form-control" />
+                </td>
+                
+                <td>
+                    <!-- Edit/Save Button -->
+                    <button class="btn btn-sm btn-primary edit-btn" 
+                            data-id="@product.ProductID" 
+                            onclick="toggleEditMode(@product.ProductID)">
+                        Edit
+                    </button>
+                    
+                    <!-- Delete Button -->
+                    <a href="@Url.Action("DeleteProduct", new { id = product.ProductID })" 
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure?')">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    function toggleEditMode(productId) {
+        console.log("Edit clicked for product:", productId); // Debug
+        var row = $('#row-' + productId);
+        var isEditing = row.find('.edit-mode').is(':visible');
+
+        if (isEditing) {
+            saveProduct(productId);
+        } else {
+            row.find('.view-mode').hide();
+            row.find('.edit-mode').show();
+            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
+        }
+    }
+
+    function saveProduct(productId) {
+        console.log("Saving product:", productId); // Debug
+        var row = $('#row-' + productId);
+        var productData = {
+            ProductID: productId,
+            Code: row.find('.edit-mode:eq(0) input').val(),
+            CostPrice: parseFloat(row.find('.edit-mode:eq(1) input').val()),
+            Description: row.find('.edit-mode:eq(2) input').val() || ""
+        };
+
+        console.log('Data:', productData);
+
+        $.ajax({
+            url: '@Url.Action("UpdateProduct", "Home")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(productData),
+            success: function() {
+                row.find('.view-mode:eq(0) span').text(productData.Code);
+                row.find('.view-mode:eq(1) span').text('$' + productData.CostPrice);
+                row.find('.view-mode:eq(2) span').text(productData.Description);
+
+                row.find('.edit-mode').hide();
+                row.find('.view-mode').show();
+                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
+
+                alert('Product updated successfully!');
+            },
+            error: function(xhr, status, error) {
+                console.log('Error:', error, xhr.responseText);
+                alert('Error updating product');
+            }
+        });
+    }
+</script>
+@* <a href="/Home/Index" class="btn btn-secondary">Back to Home</a> *@

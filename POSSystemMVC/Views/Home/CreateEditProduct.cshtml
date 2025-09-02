@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewData["Title"] = "Create/Edit Product";
+}
+
+@model POSSystemMVC.Models.Product
+
+<div class="text-center">
+    <h1 class="display-4">Create/Edit Product</h1>
+</div>
+
+<form asp-action="CreateEditProductForm" asp-controller="Home">
+    @* <label>ID</label> *@
+    <input hidden class="form-control" type="number" placeholder="0" asp-for="ProductID"/>
+
+    <label class="mt-4">Code</label>
+    <input type="text" placeholder="Add Code" asp-for="code" step="0.01" />
+
+
+    <label class="mt-4">Cost Price</label>
+    <input type="number" placeholder="0" asp-for="CostPrice" step="0.01"/>
+
+    <label class="mt-4">Description</label>
+    <input type="text" placeholder="Add a description" asp-for="Description" />
+
+    <button class="btn btn-primary mt-4" type="submit">Ok</button>
+</form>
