@@ -100,8 +100,8 @@
         }
     }
 
-    function saveProduct(productId) {
-        console.log("Saving product:", productId); // Debug
+        function saveProduct(productId) {
+        console.log("Saving product:", productId); // Debug - REMOVE @* *@
         var row = $('#row-' + productId);
         var productData = {
             ProductID: productId,
@@ -111,6 +111,30 @@
         };
 
         console.log('Data:', productData);
+        console.log('Code:', productData.Code);
+
+        // Check for duplicates
+        let spans = document.getElementsByClassName("view-mode");
+        let isDuplicate = false;
+
+        for(let i = 0; i < spans.length; i++) {
+            // Get the code from each row's first view-mode span
+            let existingCode = spans[i].querySelector('span')?.textContent;
+
+            if (existingCode && existingCode === productData.Code) {
+                // Check if it's not the same product we're editing
+                let rowId = spans[i].closest('tr').id.replace('row-', '');
+                if (rowId != productId) { // Only alert if different product
+                    alert("The same code already exists for another product.");
+                    isDuplicate = true;
+                    break;
+                }
+            }
+        }
+
+        if (isDuplicate) {
+            return; // Stop the save operation
+        }
 
         $.ajax({
             url: '@Url.Action("UpdateProduct", "Home")',
