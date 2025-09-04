@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
+using POSSystemMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IProductService, ProductService>();
+
 
 builder.Services.AddDbContext<POSDbContext>(options => 
 options.UseSqlServer("Server=DESKTOP-LIQGOIF;Database=MINIPOS;Trusted_Connection=True;TrustServerCertificate=True")

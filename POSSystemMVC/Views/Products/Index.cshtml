@@ -2,7 +2,7 @@
 
 <div style="display:flex;justify-content:space-between;">
     <h2>All Products</h2>
-    <a class="btn btn-primary" asp-action="CreateEditProduct">Create Product</a>
+    <a class="btn btn-primary" asp-action="Create">Create Product</a>
 </div>
 
 <input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
@@ -44,23 +44,19 @@
                 
                 <td style="text-align:center;">
                     <!-- Edit/Save Button -->
-                    <button class="btn btn-sm btn-primary edit-btn" 
-                            data-id="@product.ProductID" 
+                    <button class="btn btn-sm btn-primary edit-btn"
+                            data-id="@product.ProductID"
                             onclick="toggleEditMode(@product.ProductID)">
                         Edit
-                    </button>
+                    </button>                    <a asp-action="Delete" asp-route-id="@product.ProductID" class="btn btn-sm btn-danger">Delete</a>
+
 
                     <!-- Details Button -->
                     <button class="btn btn-sm btn-info details-btn" data-id="@product.ProductID">
                         Details
                     </button>
                     
-                    <!-- Delete Button -->
-                    <a href="@Url.Action("DeleteProduct", new { id = product.ProductID })" 
-                       class="btn btn-sm btn-danger"
-                       onclick="return confirm('Are you sure?')">
-                        Delete
-                    </a>
+                   >
                 </td>
             </tr>
         }
@@ -137,7 +133,7 @@
         }
 
         $.ajax({
-            url: '@Url.Action("UpdateProduct", "Home")',
+            url: '@Url.Action("UpdateProduct", "Products")',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(productData),
