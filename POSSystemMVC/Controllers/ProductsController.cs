@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using POSSystemMVC.Models;
-using POSSystemMVC.Services;
+using POSSystemMVC.Services.Intrefaces;
 
 namespace POSSystemMVC.Controllers
 {

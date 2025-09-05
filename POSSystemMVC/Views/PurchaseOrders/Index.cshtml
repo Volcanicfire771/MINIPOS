@@ -1,0 +1,24 @@
+﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrder>
+
+<h2>Purchase Orders</h2>
+<a class="btn btn-primary" asp-action="Create">New Order</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Order Date</th>
+            <th>Vendor</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.PurchaseOrderID</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
+                <td>@order.Vendor?.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>

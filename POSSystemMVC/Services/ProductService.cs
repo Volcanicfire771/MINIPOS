@@ -1,4 +1,5 @@
 ﻿using POSSystemMVC.Models;
+using POSSystemMVC.Services.Intrefaces;
 
 namespace POSSystemMVC.Services
 {

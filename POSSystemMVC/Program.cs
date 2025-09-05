@@ -1,16 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services;
+using POSSystemMVC.Services.Interfaces;
+using POSSystemMVC.Services.Intrefaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 
 builder.Services.AddDbContext<POSDbContext>(options => 
-options.UseSqlServer("Server=DESKTOP-LIQGOIF;Database=MINIPOS;Trusted_Connection=True;TrustServerCertificate=True")
+options.UseSqlServer("Server=DESKTOP-LIQGOIF;Database=MiniPOS3;Trusted_Connection=True;TrustServerCertificate=True")
 );
 
 var app = builder.Build();

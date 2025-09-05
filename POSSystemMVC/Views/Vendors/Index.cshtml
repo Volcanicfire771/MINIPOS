@@ -1,0 +1,208 @@
+﻿@model IEnumerable<POSSystemMVC.Models.Vendor>
+
+<div style="display:flex;justify-content:space-between;">
+    <h2>All Vendor</h2>
+    <a class="btn btn-primary" asp-action="Create">Create Vendor</a>
+</div>
+
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
+<table class="table">
+    <thead>
+        <tr>
+            @* <th>Product Name</th> *@
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th style="text-align:center;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vendor in Model)
+        {
+            <tr id="row-@vendor.VendorID">
+                <!-- Display Mode -->
+                <td class="view-mode">
+                    <span>@vendor.Name</span>
+                </td>
+                <td class="view-mode">
+                    <span>@vendor.Email</span>
+                </td>
+
+                <td class="view-mode">
+                    <span>@vendor.Phone</span>
+                </td>
+
+                <!-- Edit Mode (hidden initially) -->
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@vendor.Name" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@vendor.Email" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="number" value="@vendor.Phone" class="form-control" />
+                </td>
+                
+                
+                <td style="text-align:center;">
+                    <!-- Edit/Save Button -->
+                    <button class="btn btn-sm btn-primary edit-btn"
+                            data-id="@vendor.VendorID"
+                            onclick="toggleEditMode(@vendor.VendorID)">
+                        Edit
+                    </button>                    
+                    <a asp-action="Delete" asp-route-id="@vendor.VendorID" class="btn btn-sm btn-danger">Delete</a>
+
+
+                    <!-- Details Button -->
+                    <button class="btn btn-sm btn-info details-btn" data-id="@vendor.VendorID">
+                        Details
+                    </button>
+                    
+                   >
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+        function toggleEditMode(vendorId) {
+        console.log("Edit clicked for vendor:", vendorId);
+        var row = $('#row-' + vendorId);
+        var isEditing = row.find('.edit-mode').is(':visible');
+
+        if (isEditing) {
+            saveVendor(vendorId);
+        } else {
+            row.find('.view-mode').hide();
+            row.find('.edit-mode').show();
+            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
+        }
+    }
+
+    function saveVendor(vendorId) {
+        console.log("Saving vendor:", vendorId);
+        var row = $('#row-' + vendorId);
+        var vendorData = {
+            VendorID: vendorId,
+            Name: row.find('.edit-mode:eq(0) input').val(),
+            Email: row.find('.edit-mode:eq(1) input').val(),
+            Phone: row.find('.edit-mode:eq(2) input').val()
+        };
+
+        console.log('Data:', vendorData);
+
+        $.ajax({
+            url: '@Url.Action("UpdateVendor", "Vendors")', // <-- your VendorsController should have UpdateVendor
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(vendorData),
+            success: function () {
+                row.find('.view-mode:eq(0) span').text(vendorData.Name);
+                row.find('.view-mode:eq(1) span').text(vendorData.Email);
+                row.find('.view-mode:eq(2) span').text(vendorData.Phone);
+
+                row.find('.edit-mode').hide();
+                row.find('.view-mode').show();
+                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
+
+                alert('Vendor updated successfully!');
+            },
+            error: function (xhr, status, error) {
+                console.log('Error:', error, xhr.responseText);
+                alert('Error updating vendor');
+            }
+        });
+    }
+
+
+function tableSearch(){
+       let input, table, filter, tr, td, i, txtValue;
+
+       //initializing variables
+       input = document.getElementById("myInput");
+       filter = input.value.toUpperCase();
+       table = document.getElementsByClassName("table")[0];
+       tr = table.getElementsByTagName("tr");
+
+           
+       for(let i = 0; i < tr.length; i++){
+           td = tr[i].getElementsByTagName("td")[0];
+           @* console.log(td); *@
+           if(td){
+               txtValue = td.textContent || td.innerText;
+               if(txtValue.toUpperCase().indexOf(filter) > -1){
+                   tr[i].style.display = ""
+               }
+               else{
+                   tr[i].style.display = "none"
+
+               }
+           }
+       }
+
+}
+
+
+</script>
+
+<script>
+    // Bootstrap version
+    document.querySelectorAll('.details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            var productId = this.getAttribute('data-id');
+            showProductDetails(productId);
+        });
+    });
+
+    function showProductDetails(productId) {
+        var row = document.getElementById('row-' + productId);
+
+        if (row) {
+            var cells = row.getElementsByTagName('td');
+            var detailsHtml = `
+
+                <div class="detail-item">
+                    <strong>Product ID:</strong> ${productId}
+                </div>
+
+                <div class="detail-item">
+                    <strong>Code:</strong> ${cells[0].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Price:</strong> ${cells[1].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Description:</strong> ${cells[2].querySelector('span').textContent}
+                </div>
+                
+            `;
+
+            document.getElementById('modalBody').innerHTML = detailsHtml;
+
+            // Show Bootstrap modal
+            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
+    }
+</script>
+@* <a href="/Home/Index" class="btn btn-secondary">Back to Home</a> *@

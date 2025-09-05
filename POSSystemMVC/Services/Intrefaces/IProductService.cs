@@ -1,7 +1,7 @@
 ﻿using POSSystemMVC.Models;
 using System.Collections.Generic;
 
-namespace POSSystemMVC.Services
+namespace POSSystemMVC.Services.Intrefaces
 {
     public interface IProductService
     {

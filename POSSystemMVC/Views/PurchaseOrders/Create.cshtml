@@ -1,0 +1,26 @@
+﻿@model POSSystemMVC.Models.PurchaseOrder
+
+<h2>Create Purchase Order</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="VendorID" class="control-label"></label>
+        <select asp-for="VendorID" class="form-control" asp-items="ViewBag.Vendors">
+            <option value="">-- Select Vendor --</option>
+        </select>
+        <span asp-validation-for="VendorID" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OrderDate"></label>
+        <input asp-for="OrderDate" class="form-control" type="date" />
+        <span asp-validation-for="OrderDate" class="text-danger"></span>
+    </div>
+
+    
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,228 @@
+﻿@model IEnumerable<POSSystemMVC.Models.Customer>
+
+<div style="display:flex;justify-content:space-between;">
+    <h2>All Customers</h2>
+    <a class="btn btn-primary" asp-action="Create">Create Customer</a>
+</div>
+
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th style="text-align:center;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var modell in Model)
+        {
+            <tr id="row-@modell.CustomerID">
+                <!-- Display Mode -->
+                <td class="view-mode">
+                    <span>@modell.Name</span>
+                </td>
+                <td class="view-mode">
+                    <span>@modell.Email</span>
+                </td>
+                <td class="view-mode">
+                    <span>@modell.Phone</span>
+                </td>
+                
+                <!-- Edit Mode (hidden initially) -->
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@modell.Name" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@modell.Email" class="form-control" />
+                </td>
+                <td class="edit-mode" style="display:none">
+                    <input type="text" value="@modell.Phone" class="form-control" />
+                </td>
+                
+                <td style="text-align:center;">
+                    <!-- Edit/Save Button -->
+                    <button class="btn btn-sm btn-primary edit-btn"
+                            data-id="@modell.CustomerID"
+                            onclick="toggleEditMode(@modell.CustomerID)">
+                        Edit
+                    </button>                    
+                    <a asp-action="Delete" asp-route-id="@modell.CustomerID" class="btn btn-sm btn-danger">Delete</a>
+
+
+                    <!-- Details Button -->
+                    <button class="btn btn-sm btn-info details-btn" data-id="@modell.CustomerID">
+                        Details
+                    </button>
+                    
+                   >
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function toggleEditMode(modelID) {
+        console.log("Edit clicked for customer:", modelID); // Debug
+        var row = $('#row-' + modelID);
+        var isEditing = row.find('.edit-mode').is(':visible');
+
+        if (isEditing) {
+            save(modelID);
+        } else {
+            row.find('.view-mode').hide();
+            row.find('.edit-mode').show();
+            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
+        }
+    }
+
+        function save(modelID) {
+        console.log("Saving model:", modelID); // Debug - REMOVE 
+        var row = $('#row-' + modelID);
+        var Data = {
+            CustomerID: modelID,
+            Name: row.find('.edit-mode:eq(0) input').val(),
+            Email: parseFloat(row.find('.edit-mode:eq(1) input').val()),
+            Phone: row.find('.edit-mode:eq(2) input').val() || ""
+        };
+
+        console.log('Data:', Data);
+        console.log('Name:', Data.Name);
+
+        // Check for duplicates
+        let spans = document.getElementsByClassName("view-mode");
+        let isDuplicate = false;
+
+        for(let i = 0; i < spans.length; i++) {
+            // Get the code from each row's first view-mode span
+            let existingCode = spans[i].querySelector('span')?.textContent;
+
+            if (existingCode && existingCode === Data.Name) {
+                // Check if it's not the same product we're editing
+                let rowId = spans[i].closest('tr').id.replace('row-', '');
+                if (rowId != productId) { // Only alert if different product
+                    alert("The same Name already exists for another product.");
+                    isDuplicate = true;
+                    break;
+                }
+            }
+        }
+
+        if (isDuplicate) {
+            return; // Stop the save operation
+        }
+
+        $.ajax({
+            url: '@Url.Action("Update", "Customers")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(Data),
+            success: function() {
+                row.find('.view-mode:eq(0) span').text(Data.Name);
+                row.find('.view-mode:eq(1) span').text('$' + Data.Email);
+                row.find('.view-mode:eq(2) span').text('$' + Data.Phone);
+
+                row.find('.edit-mode').hide();
+                row.find('.view-mode').show();
+                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
+
+                alert('Customer updated successfully!');
+            },
+            error: function(xhr, status, error) {
+                console.log('Error:', error, xhr.responseText);
+                alert('Error updating customer');
+            }
+        });
+    }
+
+function tableSearch(){
+       let input, table, filter, tr, td, i, txtValue;
+
+       //initializing variables
+       input = document.getElementById("myInput");
+       filter = input.value.toUpperCase();
+       table = document.getElementsByClassName("table")[0];
+       tr = table.getElementsByTagName("tr");
+
+           
+       for(let i = 0; i < tr.length; i++){
+           td = tr[i].getElementsByTagName("td")[0];
+           @* console.log(td); *@
+           if(td){
+               txtValue = td.textContent || td.innerText;
+               if(txtValue.toUpperCase().indexOf(filter) > -1){
+                   tr[i].style.display = ""
+               }
+               else{
+                   tr[i].style.display = "none"
+
+               }
+           }
+       }
+
+}
+
+
+</script>
+
+<script>
+    // Bootstrap version
+    document.querySelectorAll('.details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            var modelId = this.getAttribute('data-id');
+            showProductDetails(modelId);
+        });
+    });
+
+    function showProductDetails(modelId) {
+        var row = document.getElementById('row-' + modelId);
+
+        if (row) {
+            var cells = row.getElementsByTagName('td');
+            var detailsHtml = `
+
+                <div class="detail-item">
+                    <strong>Customer ID:</strong> ${modelId}
+                </div>
+
+                <div class="detail-item">
+                    <strong>Name:</strong> ${cells[0].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Email:</strong> ${cells[1].querySelector('span').textContent}
+                </div>
+                <div class="detail-item">
+                    <strong>Phone:</strong> ${cells[2].querySelector('span').textContent}
+                </div>
+                
+            `;
+
+            document.getElementById('modalBody').innerHTML = detailsHtml;
+
+            // Show Bootstrap modal
+            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
+    }
+</script>
+@* <a href="/Home/Index" class="btn btn-secondary">Back to Home</a> *@
