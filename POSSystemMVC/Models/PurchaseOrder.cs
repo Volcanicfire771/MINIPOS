@@ -22,5 +22,8 @@ namespace POSSystemMVC.Models
         [ValidateNever]
         public Branch? Branch { get; set; }
 
+        public ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
+
+
     }
 }

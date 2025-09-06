@@ -1,66 +1,65 @@
-﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrderDetails>
+﻿@model IEnumerable<POSSystemMVC.Models.Warehouse>
 
 <div style="display:flex;justify-content:space-between;">
-    <h2>All Purchase Order Details</h2>
-    <a class="btn btn-primary" asp-action="Create">Create POD</a>
+    <h2>All Warehouses</h2>
+    <a class="btn btn-primary" asp-action="Create">Create Warehouse</a>
 </div>
 
 <input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
 <table class="table">
     <thead>
         <tr>
-            <th>Product</th>
-            <th>Purchase Order</th>
-            <th>Quantity</th>
+            <th>Branch Name</th>
+            <th>Name</th>
+            <th>Location</th>
             <th style="text-align:center;">Actions</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var pod in Model)
         {
-            <tr id="row-@pod.PurchaseOrderDetailsID">
+            <tr id="row-@pod.WarehouseID">
                 <!-- Display Mode -->
                 <td class="view-mode">
-                    <span>@pod.Product?.code</span>
+                    <span>@pod.Branch?.Name</span>
                 </td>
                 <td class="view-mode">
-                    <span>@pod.PurchaseOrder?.PurchaseOrderID</span>
+                    <span>@pod.Name</span>
                 </td>
                 <td class="view-mode">
-                    <span>@pod.Quantity</span>
+                    <span>@pod.Location</span>
                 </td>
+                
 
                 <!-- Edit Mode -->
                 <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.ProductID" class="form-control" asp-items="ViewBag.Products">
-                        <option value="">-- Select Product --</option>
+                    <select asp-for="@pod.BranchID" class="form-control" asp-items="ViewBag.Branches">
+                        <option value="">-- Select branch --</option>
                     </select>
                 </td>
 
 
+
                 <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.PurchaseOrderID" class="form-control" asp-items="ViewBag.PurchaseOrders">
-                        <option value="">-- Select PO --</option>
-                    </select>
+                    <input type="text" value="@pod.Name" class="form-control" />
                 </td>
 
                 <td class="edit-mode" style="display:none">
-                    <input type="number" value="@pod.Quantity" class="form-control" />
+                    <input type="text" value="@pod.Location" class="form-control" />
                 </td>
-
                 
 
                 <td style="text-align:center;">
                     <!-- Edit/Save -->
                     <button class="btn btn-sm btn-primary edit-btn"
-                            data-id="@pod.PurchaseOrderDetailsID"
-                            onclick="toggleEditMode(@pod.PurchaseOrderDetailsID)">
+                            data-id="@pod.WarehouseID"
+                            onclick="toggleEditMode(@pod.WarehouseID)">
                         Edit
                     </button>
-                    <a asp-action="Delete" asp-route-id="@pod.PurchaseOrderDetailsID" class="btn btn-sm btn-danger">Delete</a>
+                    <a asp-action="Delete" asp-route-id="@pod.WarehouseID" class="btn btn-sm btn-danger">Delete</a>
 
                     <!-- Details -->
-                    <button class="btn btn-sm btn-info details-btn" data-id="@pod.PurchaseOrderDetailsID">
+                    <button class="btn btn-sm btn-info details-btn" data-id="@pod.WarehouseID">
                         Details
                     </button>
                 </td>
@@ -74,7 +73,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Purchase Order Detail</h5>
+                <h5 class="modal-title">Warehouse</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalBody"></div>
@@ -86,12 +85,12 @@
 </div>
 
 <script>
-    function toggleEditMode(detailId) {
-        var row = $('#row-' + detailId);
+    function toggleEditMode(Id) {
+        var row = $('#row-' + Id);
         var isEditing = row.find('.edit-mode').is(':visible');
 
         if (isEditing) {
-            saveDetail(detailId);
+            save(Id);
         } else {
             row.find('.view-mode').hide();
             row.find('.edit-mode').show();
@@ -99,38 +98,39 @@
         }
     }
 
-        function saveDetail(detailId) {
-        var row = $('#row-' + detailId);
-        var detailData = {
-            PurchaseOrderDetailsID: detailId,
-            ProductID: row.find('.edit-mode:eq(0) select').val(),
-            PurchaseOrderID: row.find('.edit-mode:eq(1) select').val(),
-            Quantity: row.find('.edit-mode:eq(2) input').val()
+            function save(Id) {
+        var row = $('#row-' + Id);
+        var Data = {
+            WarehouseID: Id, // ✅ correct ID
+            BranchID: row.find('.edit-mode:eq(0) select').val(),
+            Name: row.find('.edit-mode:eq(1) input').val(), // ✅ input, not select
+            Location: row.find('.edit-mode:eq(2) input').val()
         };
 
         $.ajax({
-            url: '@Url.Action("Update", "PurchaseOrderDetails")',
+            url: '@Url.Action("Update", "Warehouses")', // ✅ ensure matches controller name
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(detailData),
+            data: JSON.stringify(Data),
             success: function () {
-                // update displayed values
+                // ✅ update displayed values correctly
                 row.find('.view-mode:eq(0) span').text(row.find('.edit-mode:eq(0) select option:selected').text());
-                row.find('.view-mode:eq(1) span').text(row.find('.edit-mode:eq(1) select option:selected').text());
-                row.find('.view-mode:eq(2) span').text(detailData.Quantity);
+                row.find('.view-mode:eq(1) span').text(Data.Name);
+                row.find('.view-mode:eq(2) span').text(Data.Location);
 
                 row.find('.edit-mode').hide();
                 row.find('.view-mode').show();
                 row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
 
-                alert('Detail updated successfully!');
+                alert('Warehouse updated successfully!');
             },
             error: function (xhr, status, error) {
                 console.log('Error:', error, xhr.responseText);
-                alert('Error updating detail');
+                alert('Error updating warehouse');
             }
         });
     }
+
 
 
     function tableSearch(){
@@ -159,19 +159,19 @@
         });
     });
 
-    function showDetail(detailId) {
-        var row = document.getElementById('row-' + detailId);
+    function showDetail(Id) {
+        var row = document.getElementById('row-' + Id);
 
         if (row) {
             var cells = row.getElementsByTagName('td');
-            var detailsHtml = `
-                <div><strong>ID:</strong> ${detailId}</div>
-                <div><strong>Product:</strong> ${cells[0].querySelector('span').textContent}</div>
-                <div><strong>Purchase Order:</strong> ${cells[1].querySelector('span').textContent}</div>
-                <div><strong>Quantity:</strong> ${cells[2].querySelector('span').textContent}</div>
+            var Html = `
+                <div><strong>ID:</strong> ${Id}</div>
+                <div><strong>Branch:</strong> ${cells[0].querySelector('span').textContent}</div>
+                <div><strong>Name:</strong> ${cells[1].querySelector('span').textContent}</div>
+                <div><strong>Location:</strong> ${cells[2].querySelector('span').textContent}</div>
             `;
 
-            document.getElementById('modalBody').innerHTML = detailsHtml;
+            document.getElementById('modalBody').innerHTML = Html;
             var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
             modal.show();
         }

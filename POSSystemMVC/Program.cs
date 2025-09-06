@@ -14,6 +14,9 @@ builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPurchaseOrderDetailService, PurchaseOrderDetailService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IWarehouseStockService, WarehouseStockService>();
+builder.Services.AddScoped<IPurchaseOrderReceiptService, PurchaseOrderReceiptService>();
 
 
 builder.Services.AddDbContext<POSDbContext>(options => 

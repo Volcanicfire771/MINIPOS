@@ -1,4 +1,6 @@
-﻿namespace POSSystemMVC.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace POSSystemMVC.Models
 {
     public class Warehouse
     {
@@ -9,9 +11,10 @@
         public string Location { get; set; } = string.Empty;
 
         // Navigation: one warehouse belongs to a branch
+        [ValidateNever]                            
         public Branch Branch { get; set; }
 
         // Navigation: one warehouse has many stock records
-        //public ICollection<WarehouseStock> Stocks { get; set; } = new List<WarehouseStock>();
+        public ICollection<WarehouseStock> Stocks { get; set; } = new List<WarehouseStock>();
     }
 }
