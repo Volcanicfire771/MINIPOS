@@ -13,8 +13,14 @@ namespace POSSystemMVC.Models
         [Required]
         public int VendorID { get; set; }
 
+        [Required]
+        public int BranchID { get; set; }
+
         // Navigation
         [ValidateNever]                            // <-- don't validate nav props
         public Vendor? Vendor { get; set; }
+        [ValidateNever]
+        public Branch? Branch { get; set; }
+
     }
 }

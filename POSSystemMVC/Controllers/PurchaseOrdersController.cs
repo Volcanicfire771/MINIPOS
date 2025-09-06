@@ -8,11 +8,14 @@ public class PurchaseOrdersController : Controller
 {
     private readonly IPurchaseOrderService _orderService;
     private readonly IVendorService _vendorService;
+    private readonly IBranchService _branchService;
 
-    public PurchaseOrdersController(IPurchaseOrderService orderService, IVendorService vendorService)
+
+    public PurchaseOrdersController(IPurchaseOrderService orderService, IVendorService vendorService, IBranchService branchService)
     {
         _orderService = orderService;
         _vendorService = vendorService;
+        _branchService = branchService;
     }
 
     public IActionResult Index()
@@ -24,6 +27,8 @@ public class PurchaseOrdersController : Controller
     public IActionResult Create()
     {
         ViewBag.Vendors = new SelectList(_vendorService.GetAll(), "VendorID", "Name");
+        ViewBag.Branches = new SelectList(_branchService.GetAll(), "BranchID", "Name");
+
         return View();
     }
 
@@ -42,6 +47,8 @@ public class PurchaseOrdersController : Controller
 
 
         ViewBag.Vendors = new SelectList(_vendorService.GetAll(), "VendorID", "Name", order.VendorID);
+        ViewBag.Branches = new SelectList(_branchService.GetAll(), "BranchID", "Name", order.BranchID);
+
         return View(order);
     }
 }

@@ -1,0 +1,179 @@
+﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrderDetails>
+
+<div style="display:flex;justify-content:space-between;">
+    <h2>All Purchase Order Details</h2>
+    <a class="btn btn-primary" asp-action="Create">Create POD</a>
+</div>
+
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Purchase Order</th>
+            <th>Quantity</th>
+            <th style="text-align:center;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pod in Model)
+        {
+            <tr id="row-@pod.PurchaseOrderDetailsID">
+                <!-- Display Mode -->
+                <td class="view-mode">
+                    <span>@pod.Product?.Description</span>
+                </td>
+                <td class="view-mode">
+                    <span>@pod.PurchaseOrder?.PurchaseOrderID</span>
+                </td>
+                <td class="view-mode">
+                    <span>@pod.Quantity</span>
+                </td>
+
+                <!-- Edit Mode -->
+                <td class="edit-mode" style="display:none">
+                    <select asp-for="@pod.ProductID" class="form-control" asp-items="ViewBag.Products">
+                        <option value="">-- Select Product --</option>
+                    </select>
+                </td>
+
+
+                <td class="edit-mode" style="display:none">
+                    <select asp-for="@pod.PurchaseOrderID" class="form-control" asp-items="ViewBag.PurchaseOrders">
+                        <option value="">-- Select PO --</option>
+                    </select>
+                </td>
+
+                <td class="edit-mode" style="display:none">
+                    <input type="number" value="@pod.Quantity" class="form-control" />
+                </td>
+
+                
+
+                <td style="text-align:center;">
+                    <!-- Edit/Save -->
+                    <button class="btn btn-sm btn-primary edit-btn"
+                            data-id="@pod.PurchaseOrderDetailsID"
+                            onclick="toggleEditMode(@pod.PurchaseOrderDetailsID)">
+                        Edit
+                    </button>
+                    <a asp-action="Delete" asp-route-id="@pod.PurchaseOrderDetailsID" class="btn btn-sm btn-danger">Delete</a>
+
+                    <!-- Details -->
+                    <button class="btn btn-sm btn-info details-btn" data-id="@pod.PurchaseOrderDetailsID">
+                        Details
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Purchase Order Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEditMode(detailId) {
+        var row = $('#row-' + detailId);
+        var isEditing = row.find('.edit-mode').is(':visible');
+
+        if (isEditing) {
+            saveDetail(detailId);
+        } else {
+            row.find('.view-mode').hide();
+            row.find('.edit-mode').show();
+            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
+        }
+    }
+
+        function saveDetail(detailId) {
+        var row = $('#row-' + detailId);
+        var detailData = {
+            PurchaseOrderDetailsID: detailId,
+            ProductID: row.find('.edit-mode:eq(0) select').val(),
+            PurchaseOrderID: row.find('.edit-mode:eq(1) select').val(),
+            Quantity: row.find('.edit-mode:eq(2) input').val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("Update", "PurchaseOrderDetails")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(detailData),
+            success: function () {
+                // update displayed values
+                row.find('.view-mode:eq(0) span').text(row.find('.edit-mode:eq(0) select option:selected').text());
+                row.find('.view-mode:eq(1) span').text(row.find('.edit-mode:eq(1) select option:selected').text());
+                row.find('.view-mode:eq(2) span').text(detailData.Quantity);
+
+                row.find('.edit-mode').hide();
+                row.find('.view-mode').show();
+                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
+
+                alert('Detail updated successfully!');
+            },
+            error: function (xhr, status, error) {
+                console.log('Error:', error, xhr.responseText);
+                alert('Error updating detail');
+            }
+        });
+    }
+
+
+    function tableSearch(){
+        let input = document.getElementById("myInput");
+        let filter = input.value.toUpperCase();
+        let table = document.getElementsByClassName("table")[0];
+        let tr = table.getElementsByTagName("tr");
+
+        for(let i = 0; i < tr.length; i++){
+            let td = tr[i].getElementsByTagName("td")[0];
+            if(td){
+                let txtValue = td.textContent || td.innerText;
+                if(txtValue.toUpperCase().indexOf(filter) > -1){
+                    tr[i].style.display = ""
+                } else {
+                    tr[i].style.display = "none"
+                }
+            }
+        }
+    }
+
+    document.querySelectorAll('.details-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            var detailId = this.getAttribute('data-id');
+            showDetail(detailId);
+        });
+    });
+
+    function showDetail(detailId) {
+        var row = document.getElementById('row-' + detailId);
+
+        if (row) {
+            var cells = row.getElementsByTagName('td');
+            var detailsHtml = `
+                <div><strong>ID:</strong> ${detailId}</div>
+                <div><strong>Product:</strong> ${cells[0].querySelector('span').textContent}</div>
+                <div><strong>Purchase Order:</strong> ${cells[1].querySelector('span').textContent}</div>
+                <div><strong>Quantity:</strong> ${cells[2].querySelector('span').textContent}</div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = detailsHtml;
+            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
+    }
+</script>

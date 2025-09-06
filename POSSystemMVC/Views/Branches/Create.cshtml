@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewData["Title"] = "Create Branch";
+}
+
+@model POSSystemMVC.Models.Branch
+
+<div class="text-center">
+    <h1 class="display-4">Create Branch</h1>
+</div>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+
+    <label class="mt-4">Name</label>
+    <input type="text" placeholder="Add Name" asp-for="Name" step="0.01" />
+
+    <label class="mt-4">Location</label>
+    <input type="text" placeholder="Add a Location" asp-for="Location" />
+
+    
+
+    <button class="btn btn-primary mt-4" type="submit">Ok</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

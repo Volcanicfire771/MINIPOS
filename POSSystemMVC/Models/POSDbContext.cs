@@ -11,6 +11,7 @@ namespace POSSystemMVC.Models
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
 
+        public DbSet<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
 
 
 

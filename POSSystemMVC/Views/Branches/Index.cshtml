@@ -1,8 +1,8 @@
-﻿@model IEnumerable<POSSystemMVC.Models.Vendor>
+﻿@model IEnumerable<POSSystemMVC.Models.Branch>
 
 <div style="display:flex;justify-content:space-between;">
-    <h2>All Vendor</h2>
-    <a class="btn btn-primary" asp-action="Create">Create Vendor</a>
+    <h2>All Branches</h2>
+    <a class="btn btn-primary" asp-action="Create">Create Branch</a>
 </div>
 
 <input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
@@ -11,51 +11,45 @@
         <tr>
             @* <th>Product Name</th> *@
             <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
+            <th>Location</th>
             <th style="text-align:center;">Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var vendor in Model)
+        @foreach (var modell in Model)
         {
-            <tr id="row-@vendor.VendorID">
+            <tr id="row-@modell.BranchID">
                 <!-- Display Mode -->
                 <td class="view-mode">
-                    <span>@vendor.Name</span>
+                    <span>@modell.Name</span>
                 </td>
                 <td class="view-mode">
-                    <span>@vendor.Email</span>
+                    <span>@modell.Location</span>
                 </td>
 
-                <td class="view-mode">
-                    <span>@vendor.Phone</span>
-                </td>
+                
 
                 <!-- Edit Mode (hidden initially) -->
                 <td class="edit-mode" style="display:none">
-                    <input type="text" value="@vendor.Name" class="form-control" />
+                    <input type="text" value="@modell.Name" class="form-control" />
                 </td>
                 <td class="edit-mode" style="display:none">
-                    <input type="text" value="@vendor.Email" class="form-control" />
+                    <input type="text" value="@modell.Location" class="form-control" />
                 </td>
-                <td class="edit-mode" style="display:none">
-                    <input type="number" value="@vendor.Phone" class="form-control" />
-                </td>
-                
+               
                 
                 <td style="text-align:center;">
                     <!-- Edit/Save Button -->
                     <button class="btn btn-sm btn-primary edit-btn"
-                            data-id="@vendor.VendorID"
-                            onclick="toggleEditMode(@vendor.VendorID)">
+                            data-id="@modell.BranchID"
+                            onclick="toggleEditMode(@modell.BranchID)">
                         Edit
-                    </button>                    
-                    <a asp-action="Delete" asp-route-id="@vendor.VendorID" class="btn btn-sm btn-danger">Delete</a>
+                    </button>
+                    <a asp-action="Delete" asp-route-id="@modell.BranchID" class="btn btn-sm btn-danger">Delete</a>
 
 
                     <!-- Details Button -->
-                    <button class="btn btn-sm btn-info details-btn" data-id="@vendor.VendorID">
+                    <button class="btn btn-sm btn-info details-btn" data-id="@modell.BranchID">
                         Details
                     </button>
                     
@@ -70,7 +64,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Vendor Details</h5>
+                <h5 class="modal-title">Branch Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalBody">
@@ -85,13 +79,13 @@
 
 
 <script>
-        function toggleEditMode(vendorId) {
-        console.log("Edit clicked for vendor:", vendorId);
-        var row = $('#row-' + vendorId);
+        function toggleEditMode(branchID) {
+            console.log("Edit clicked for branch:", branchID);
+            var row = $('#row-' + branchID);
         var isEditing = row.find('.edit-mode').is(':visible');
 
         if (isEditing) {
-            saveVendor(vendorId);
+                save(branchID);
         } else {
             row.find('.view-mode').hide();
             row.find('.edit-mode').show();
@@ -99,37 +93,34 @@
         }
     }
 
-    function saveVendor(vendorId) {
-        console.log("Saving vendor:", vendorId);
-        var row = $('#row-' + vendorId);
-        var vendorData = {
-            VendorID: vendorId,
+        function save(branchID) {
+            console.log("Saving branch:", branchID);
+            var row = $('#row-' + branchID);
+            var branchData = {
+            BranchID: branchID,
             Name: row.find('.edit-mode:eq(0) input').val(),
-            Email: row.find('.edit-mode:eq(1) input').val(),
-            Phone: row.find('.edit-mode:eq(2) input').val()
+            Location: row.find('.edit-mode:eq(1) input').val(),
         };
 
-        console.log('Data:', vendorData);
+            console.log('Data:', branchData);
 
         $.ajax({
-            url: '@Url.Action("UpdateVendor", "Vendors")', // <-- your VendorsController should have UpdateVendor
+            url: '@Url.Action("Update", "Branches")', 
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(vendorData),
+            data: JSON.stringify(branchData),
             success: function () {
-                row.find('.view-mode:eq(0) span').text(vendorData.Name);
-                row.find('.view-mode:eq(1) span').text(vendorData.Email);
-                row.find('.view-mode:eq(2) span').text(vendorData.Phone);
-
+                row.find('.view-mode:eq(0) span').text(branchData.Name);
+                    row.find('.view-mode:eq(1) span').text(branchData.Location);
                 row.find('.edit-mode').hide();
                 row.find('.view-mode').show();
                 row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
 
-                alert('Vendor updated successfully!');
+                alert('Branch updated successfully!');
             },
             error: function (xhr, status, error) {
                 console.log('Error:', error, xhr.responseText);
-                alert('Error updating vendor');
+                alert('Error updating branch');
             }
         });
     }
@@ -147,7 +138,6 @@ function tableSearch(){
            
        for(let i = 0; i < tr.length; i++){
            td = tr[i].getElementsByTagName("td")[0];
-           @* console.log(td); *@
            if(td){
                txtValue = td.textContent || td.innerText;
                if(txtValue.toUpperCase().indexOf(filter) > -1){
@@ -169,31 +159,29 @@ function tableSearch(){
     // Bootstrap version
     document.querySelectorAll('.details-btn').forEach(button => {
         button.addEventListener('click', function() {
-            var Id = this.getAttribute('data-id');
-            showDetails(Id);
+            var branchID = this.getAttribute('data-id');
+            showDetails(branchID);
         });
     });
 
-    function showDetails(Id) {
-        var row = document.getElementById('row-' + Id);
+    function showDetails(branchID) {
+        var row = document.getElementById('row-' + branchID);
 
         if (row) {
             var cells = row.getElementsByTagName('td');
             var detailsHtml = `
 
                 <div class="detail-item">
-                    <strong>Vendor ID:</strong> ${Id}
+                    <strong>Branch ID:</strong> ${branchID}
                 </div>
 
                 <div class="detail-item">
-                    <strong>Name</strong> ${cells[0].querySelector('span').textContent}
+                    <strong>Name:</strong> ${cells[0].querySelector('span').textContent}
                 </div>
                 <div class="detail-item">
-                    <strong>Email</strong> ${cells[1].querySelector('span').textContent}
+                    <strong>Location:</strong> ${cells[1].querySelector('span').textContent}
                 </div>
-                <div class="detail-item">
-                    <strong>Phone</strong> ${cells[2].querySelector('span').textContent}
-                </div>
+                
                 
             `;
 

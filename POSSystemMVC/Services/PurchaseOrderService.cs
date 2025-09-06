@@ -15,12 +15,16 @@ namespace POSSystemMVC.Services
 
         public IEnumerable<PurchaseOrder> GetAll()
         {
-            return _context.PurchaseOrders.Include(p => p.Vendor).ToList();
+            return _context.PurchaseOrders
+                .Include(p => p.Vendor)
+                .Include(p => p.Branch).ToList();
         }
 
         public PurchaseOrder? GetById(int id)
         {
-            return _context.PurchaseOrders.Include(p => p.Vendor)
+            return _context.PurchaseOrders
+                .Include(p => p.Vendor)
+                .Include(p => p.Branch)
                                           .FirstOrDefault(p => p.PurchaseOrderID == id);
         }
 

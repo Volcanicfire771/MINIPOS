@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POSSystemMVC.Models;
 
@@ -11,9 +12,11 @@ using POSSystemMVC.Models;
 namespace POSSystemMVC.Migrations
 {
     [DbContext(typeof(POSDbContext))]
-    partial class POSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250905235901_FixPODID")]
+    partial class FixPODID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +102,6 @@ namespace POSSystemMVC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PurchaseOrderID"));
 
-                    b.Property<int>("BranchID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -109,8 +109,6 @@ namespace POSSystemMVC.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("PurchaseOrderID");
-
-                    b.HasIndex("BranchID");
 
                     b.HasIndex("VendorID");
 
@@ -196,19 +194,11 @@ namespace POSSystemMVC.Migrations
 
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrder", b =>
                 {
-                    b.HasOne("POSSystemMVC.Models.Branch", "Branch")
-                        .WithMany("PurchaseOrders")
-                        .HasForeignKey("BranchID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("POSSystemMVC.Models.Vendor", "Vendor")
                         .WithMany("PurchaseOrders")
                         .HasForeignKey("VendorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("Vendor");
                 });
@@ -245,8 +235,6 @@ namespace POSSystemMVC.Migrations
 
             modelBuilder.Entity("POSSystemMVC.Models.Branch", b =>
                 {
-                    b.Navigation("PurchaseOrders");
-
                     b.Navigation("Warehouses");
                 });
 
