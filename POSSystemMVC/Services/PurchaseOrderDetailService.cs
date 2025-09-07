@@ -19,6 +19,15 @@ public class PurchaseOrderDetailService : IPurchaseOrderDetailService
     public PurchaseOrderDetails GetById(int id)
         => _context.PurchaseOrderDetails.Find(id);
 
+    public IEnumerable<PurchaseOrderDetails> GetByPurchaseOrderId(int? purchaseOrderId)
+    {
+        return _context.PurchaseOrderDetails
+            .Include(d => d.Product)
+            .Include(d => d.PurchaseOrder)
+            .Where(d => d.PurchaseOrderID == purchaseOrderId)
+            .ToList();
+    }
+
     public void Add(PurchaseOrderDetails detail)
     {
         _context.PurchaseOrderDetails.Add(detail);

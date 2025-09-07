@@ -17,12 +17,13 @@ namespace POSSystemMVC.Models
         public int BranchID { get; set; }
 
         // Navigation
-        [ValidateNever]                            // <-- don't validate nav props
+        [ValidateNever]                           
         public Vendor? Vendor { get; set; }
         [ValidateNever]
         public Branch? Branch { get; set; }
 
         public ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
+        public ICollection<PurchaseOrderReceipt> PurchaseOrderReceipts { get; set; } = new List<PurchaseOrderReceipt>();
 
 
     }

@@ -5,7 +5,7 @@
 namespace POSSystemMVC.Migrations
 {
     /// <inheritdoc />
-    public partial class Initialll : Migration
+    public partial class fixedStocks : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -12,8 +12,8 @@ using POSSystemMVC.Models;
 namespace POSSystemMVC.Migrations
 {
     [DbContext(typeof(POSDbContext))]
-    [Migration("20250906091745_updatingWarehouse")]
-    partial class updatingWarehouse
+    [Migration("20250907064029_addedSOandSODetails")]
+    partial class addedSOandSODetails
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -146,6 +146,81 @@ namespace POSSystemMVC.Migrations
                     b.ToTable("PurchaseOrderDetails");
                 });
 
+            modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrderReceipt", b =>
+                {
+                    b.Property<int>("ReceiptID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReceiptID"));
+
+                    b.Property<int>("PurchaseOrderID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReceivedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WarehouseID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReceiptID");
+
+                    b.HasIndex("PurchaseOrderID");
+
+                    b.HasIndex("WarehouseID");
+
+                    b.ToTable("PurchaseOrderReceipts");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.SalesOrder", b =>
+                {
+                    b.Property<int>("SalesOrderID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalesOrderID"));
+
+                    b.Property<int>("BranchID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SODate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("SalesOrderID");
+
+                    b.HasIndex("BranchID");
+
+                    b.HasIndex("CustomerID");
+
+                    b.ToTable("SalesOrders");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.SalesOrderDetail", b =>
+                {
+                    b.Property<int>("SODetailID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SODetailID"));
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SalesOrderID")
+                        .HasColumnType("int");
+
+                    b.HasKey("SODetailID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("SalesOrderID");
+
+                    b.ToTable("SalesOrderDetails");
+                });
+
             modelBuilder.Entity("POSSystemMVC.Models.Vendor", b =>
                 {
                     b.Property<int>("VendorID")
@@ -190,11 +265,42 @@ namespace POSSystemMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PurchaseOrderID")
+                        .HasColumnType("int");
+
                     b.HasKey("WarehouseID");
 
                     b.HasIndex("BranchID");
 
+                    b.HasIndex("PurchaseOrderID");
+
                     b.ToTable("Warehouses");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.WarehouseStock", b =>
+                {
+                    b.Property<int>("WarehouseStockID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WarehouseStockID"));
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WarehouseID")
+                        .HasColumnType("int");
+
+                    b.HasKey("WarehouseStockID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("WarehouseID");
+
+                    b.ToTable("WarehouseStocks");
                 });
 
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrder", b =>
@@ -219,7 +325,7 @@ namespace POSSystemMVC.Migrations
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrderDetails", b =>
                 {
                     b.HasOne("POSSystemMVC.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("PurchaseOrderDetails")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -235,6 +341,63 @@ namespace POSSystemMVC.Migrations
                     b.Navigation("PurchaseOrder");
                 });
 
+            modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrderReceipt", b =>
+                {
+                    b.HasOne("POSSystemMVC.Models.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("PurchaseOrderReceipts")
+                        .HasForeignKey("PurchaseOrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("POSSystemMVC.Models.Warehouse", "Warehouse")
+                        .WithMany("PurchaseOrderReceipts")
+                        .HasForeignKey("WarehouseID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PurchaseOrder");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.SalesOrder", b =>
+                {
+                    b.HasOne("POSSystemMVC.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("POSSystemMVC.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.SalesOrderDetail", b =>
+                {
+                    b.HasOne("POSSystemMVC.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("POSSystemMVC.Models.SalesOrder", "SalesOrder")
+                        .WithMany()
+                        .HasForeignKey("SalesOrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("SalesOrder");
+                });
+
             modelBuilder.Entity("POSSystemMVC.Models.Warehouse", b =>
                 {
                     b.HasOne("POSSystemMVC.Models.Branch", "Branch")
@@ -243,7 +406,30 @@ namespace POSSystemMVC.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("POSSystemMVC.Models.PurchaseOrder", null)
+                        .WithMany("Warehouses")
+                        .HasForeignKey("PurchaseOrderID");
+
                     b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.WarehouseStock", b =>
+                {
+                    b.HasOne("POSSystemMVC.Models.Product", "Product")
+                        .WithMany("WarehouseStocks")
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("POSSystemMVC.Models.Warehouse", "Warehouse")
+                        .WithMany("Stocks")
+                        .HasForeignKey("WarehouseID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("POSSystemMVC.Models.Branch", b =>
@@ -253,9 +439,30 @@ namespace POSSystemMVC.Migrations
                     b.Navigation("Warehouses");
                 });
 
+            modelBuilder.Entity("POSSystemMVC.Models.Product", b =>
+                {
+                    b.Navigation("PurchaseOrderDetails");
+
+                    b.Navigation("WarehouseStocks");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrder", b =>
+                {
+                    b.Navigation("PurchaseOrderReceipts");
+
+                    b.Navigation("Warehouses");
+                });
+
             modelBuilder.Entity("POSSystemMVC.Models.Vendor", b =>
                 {
                     b.Navigation("PurchaseOrders");
+                });
+
+            modelBuilder.Entity("POSSystemMVC.Models.Warehouse", b =>
+                {
+                    b.Navigation("PurchaseOrderReceipts");
+
+                    b.Navigation("Stocks");
                 });
 #pragma warning restore 612, 618
         }

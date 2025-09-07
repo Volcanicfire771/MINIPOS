@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewData["Title"] = "Create Sales Order";
+}
+
+@model POSSystemMVC.Models.SalesOrder
+
+<div class="text-center">
+    <h1 class="display-4">Create Sales Order</h1>
+</div>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+
+    <div class="form-group">
+        <label asp-for="CustomerID" class="control-label"></label>
+        <select asp-for="CustomerID" class="form-control" asp-items="ViewBag.Customers">
+            <option value="">-- Select Customer --</option>
+        </select>
+        <span asp-validation-for="CustomerID" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BranchID" class="control-label"></label>
+        <select asp-for="BranchID" class="form-control" asp-items="ViewBag.Branches">
+            <option value="">-- Select Branch --</option>
+        </select>
+        <span asp-validation-for="BranchID" class="text-danger"></span>
+    </div>
+
+    <label class="mt-4">Date</label>
+    <input type="date"  asp-for="SODate" />
+
+    
+
+    <button class="btn btn-primary mt-4" type="submit">Ok</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

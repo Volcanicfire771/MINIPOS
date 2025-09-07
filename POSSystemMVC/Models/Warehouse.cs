@@ -15,6 +15,10 @@ namespace POSSystemMVC.Models
         public Branch Branch { get; set; }
 
         // Navigation: one warehouse has many stock records
+        [ValidateNever]
+
         public ICollection<WarehouseStock> Stocks { get; set; } = new List<WarehouseStock>();
+        public ICollection<PurchaseOrderReceipt> PurchaseOrderReceipts { get; set; } = new List<PurchaseOrderReceipt>();
+
     }
 }

@@ -17,10 +17,12 @@ builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IWarehouseStockService, WarehouseStockService>();
 builder.Services.AddScoped<IPurchaseOrderReceiptService, PurchaseOrderReceiptService>();
+builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
+builder.Services.AddScoped<ISalesOrderDetailService, SalesOrderDetailService>();
 
 
 builder.Services.AddDbContext<POSDbContext>(options => 
-options.UseSqlServer("Server=DESKTOP-LIQGOIF;Database=MiniPOS4;Trusted_Connection=True;TrustServerCertificate=True")
+options.UseSqlServer("Server=DESKTOP-LIQGOIF;Database=MiniPOS5;Trusted_Connection=True;TrustServerCertificate=True")
 );
 
 var app = builder.Build();

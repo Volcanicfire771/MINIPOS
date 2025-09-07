@@ -12,8 +12,8 @@ using POSSystemMVC.Models;
 namespace POSSystemMVC.Migrations
 {
     [DbContext(typeof(POSDbContext))]
-    [Migration("20250906101619_FixAllRelations")]
-    partial class FixAllRelations
+    [Migration("20250907035711_InitialCreateFixed")]
+    partial class InitialCreateFixed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -295,15 +295,15 @@ namespace POSSystemMVC.Migrations
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrderReceipt", b =>
                 {
                     b.HasOne("POSSystemMVC.Models.PurchaseOrder", "PurchaseOrder")
-                        .WithMany()
+                        .WithMany("PurchaseOrderReceipts")
                         .HasForeignKey("PurchaseOrderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("POSSystemMVC.Models.Warehouse", "Warehouse")
-                        .WithMany()
+                        .WithMany("PurchaseOrderReceipts")
                         .HasForeignKey("WarehouseID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("PurchaseOrder");
@@ -354,6 +354,8 @@ namespace POSSystemMVC.Migrations
 
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrder", b =>
                 {
+                    b.Navigation("PurchaseOrderReceipts");
+
                     b.Navigation("Warehouses");
                 });
 
@@ -364,6 +366,8 @@ namespace POSSystemMVC.Migrations
 
             modelBuilder.Entity("POSSystemMVC.Models.Warehouse", b =>
                 {
+                    b.Navigation("PurchaseOrderReceipts");
+
                     b.Navigation("Stocks");
                 });
 #pragma warning restore 612, 618

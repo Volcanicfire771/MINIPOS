@@ -14,8 +14,11 @@ namespace POSSystemMVC.Models
         public DbSet<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
         public DbSet<PurchaseOrderReceipt> PurchaseOrderReceipts { get; set; }
         public DbSet<WarehouseStock> WarehouseStocks { get; set; }
+        public DbSet<SalesOrder> SalesOrders { get; set; }
+        public DbSet<SalesOrderDetails> SalesOrderDetails { get; set; }
 
-
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +42,21 @@ namespace POSSystemMVC.Models
                 .WithMany(v => v.PurchaseOrders)
                 .HasForeignKey(po => po.VendorID);
 
-            
+            // PurchaseOrderReceipt → Warehouse
+            modelBuilder.Entity<PurchaseOrderReceipt>()
+                .HasOne(r => r.Warehouse)
+                .WithMany(w => w.PurchaseOrderReceipts)
+                .HasForeignKey(r => r.WarehouseID)
+                .OnDelete(DeleteBehavior.Restrict); // ❌ no cascade here
+
+            // PurchaseOrderReceipt → PurchaseOrder
+            modelBuilder.Entity<PurchaseOrderReceipt>()
+                .HasOne(r => r.PurchaseOrder)
+                .WithMany(po => po.PurchaseOrderReceipts)
+                .HasForeignKey(r => r.PurchaseOrderID)
+                .OnDelete(DeleteBehavior.Cascade); // ✅ keep cascade here
+
+
 
         }
 

@@ -20,6 +20,14 @@ namespace POSSystemMVC.Services
                 .Include(p => p.Branch).ToList();
         }
 
+        public IEnumerable<PurchaseOrder> Filter()
+        {
+            return _context.PurchaseOrders
+                .Include(p => p.Vendor)
+                .Include(p => p.Branch).AsQueryable();
+        }
+
+
         public PurchaseOrder? GetById(int id)
         {
             return _context.PurchaseOrders

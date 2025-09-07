@@ -1,7 +1,24 @@
 ﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrder>
 
 <h2>Purchase Orders</h2>
+<a Class="btn btn-primary" asp-action="Index" asp-controller="PurchaseOrderDetails">All Details</a>
 <a class="btn btn-primary" asp-action="Create">New Order</a>
+
+<br />
+<br />
+<form method="get" asp-action="index" style="padding: 10px;">
+    <select name="branchID" asp-items="ViewBag.Branches" class="form-control">
+        <option value="">Filter by Branch</option>
+    </select>
+    
+
+    <select name="vendorID" asp-items="ViewBag.Vendors" class="form-control">
+        <option value="">Filter by Vendor</option>
+    </select>
+    <br/>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
 
 <table class="table mt-3">
     <thead>
@@ -10,6 +27,7 @@
             <th>Branch</th>
             <th>Order Date</th>
             <th>Vendor</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +38,9 @@
                 <td>@order.Branch?.Name</td>
                 <td>@order.OrderDate.ToShortDateString()</td>
                 <td>@order.Vendor?.Name</td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp asp-controller="PurchaseOrderDetails" asp-action="Index" asp-route-purchaseOrderID="@order.PurchaseOrderID">View Details</a>
+                </td>
             </tr>
         }
     </tbody>

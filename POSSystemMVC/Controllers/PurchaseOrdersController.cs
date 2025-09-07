@@ -18,10 +18,24 @@ public class PurchaseOrdersController : Controller
         _branchService = branchService;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int? branchID, int? vendorID)
     {
-        var orders = _orderService.GetAll();
-        return View(orders);
+
+        var orders = _orderService.Filter();
+
+        if (branchID.HasValue)
+        {
+            orders = orders.Where(po => po.BranchID == branchID);
+        }
+
+        if (vendorID.HasValue)
+        {
+            orders = orders.Where(po => po.VendorID == vendorID);
+        }
+
+        ViewBag.Vendors = new SelectList(_vendorService.GetAll(), "VendorID", "Name");
+        ViewBag.Branches = new SelectList(_branchService.GetAll(), "BranchID", "Name");
+        return View(orders.ToList());
     }
 
     public IActionResult Create()
@@ -36,8 +50,6 @@ public class PurchaseOrdersController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Create(PurchaseOrder order)
     {
-        Console.WriteLine($"VendorID: {order.VendorID}");
-
 
         if (ModelState.IsValid)
         {

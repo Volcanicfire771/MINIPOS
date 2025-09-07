@@ -17,7 +17,7 @@ namespace POSSystemMVC.Models
         public int PurchaseOrderID { get; set; } 
 
         // Navigation
-        [ValidateNever]                            // <-- don't validate nav props
+        [ValidateNever]                            
         public Product? Product { get; set; }
 
         [ValidateNever]

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services.Intrefaces;
 
-public class WarehouseStockController : Controller
+public class WarehouseStocksController : Controller
 {
     private readonly IWarehouseService _warehouseService;
     private readonly IWarehouseStockService _warehouseStockService;
     private readonly IProductService _productService;
 
-    public WarehouseStockController(
+    public WarehouseStocksController(
         IWarehouseService warehouseService,
         IProductService productService,
         IWarehouseStockService warehouseStockService
@@ -24,8 +24,11 @@ public class WarehouseStockController : Controller
 
     public IActionResult Index()
     {
-        ViewBag.Warehouses = new SelectList(_warehouseService.GetAll(), "WarehouseID", "Name");
-        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "Name");
+        var warehouses = _warehouseService.GetAll();
+        var products = _productService.GetAllProducts();
+
+        ViewBag.Warehouses = new SelectList(warehouses, "WarehouseID", "Name");
+        ViewBag.Products = new SelectList(products, "ProductID", "code");
 
         var details = _warehouseStockService.GetAll();
         return View(details);
@@ -33,10 +36,16 @@ public class WarehouseStockController : Controller
 
     public IActionResult Create()
     {
-        ViewBag.Warehouses = new SelectList(_warehouseService.GetAll(), "WarehouseID", "Name");
-        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "Name");
+        var warehouses = _warehouseService.GetAll();
+        var products = _productService.GetAllProducts();
+
+        ViewBag.Warehouses = new SelectList(warehouses, "WarehouseID", "Name");
+        ViewBag.Products = new SelectList(products, "ProductID", "code");
+
         return View();
     }
+
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -44,15 +53,17 @@ public class WarehouseStockController : Controller
     {
         if (ModelState.IsValid)
         {
-            _warehouseStockService.Add(stock);   
+            _warehouseStockService.Add(stock);
             return RedirectToAction(nameof(Index));
         }
 
-        // Rebuild dropdowns if validation fails
-        ViewBag.Warehouses = new SelectList(_warehouseService.GetAll(), "WarehouseID", "Name");
-        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "Name");
+        ViewBag.Warehouses = new SelectList(_warehouseService.GetAll(), "WarehouseID", "Name", stock.WarehouseID);
+        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "Code", stock.ProductID);
+
         return View(stock);
     }
+
+
 
     [HttpPost]
 public IActionResult Update([FromBody] WarehouseStock model)

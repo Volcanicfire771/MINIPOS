@@ -11,6 +11,15 @@ namespace POSSystemMVC.Models
         public decimal CostPrice { get; set; }
         [Required]
         public string? Description { get; set; }
+
+
+        public ICollection<WarehouseStock> WarehouseStocks { get; set; } = new List<WarehouseStock>();
+        public ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; } = new List<PurchaseOrderDetails>();
+
+        public ICollection<InvoiceDetail> InvoiceDetails { get; set; } = new List<InvoiceDetail>();
+
+
+
     }
 
 }

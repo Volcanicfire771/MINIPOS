@@ -2,17 +2,18 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
+using POSSystemMVC.Services.Interfaces;
 using POSSystemMVC.Services.Intrefaces;
 
-public class PurchaseOrderDetailsController : Controller
+public class SalesOrderDetailsController : Controller
 {
-    private readonly IPurchaseOrderDetailService _orderDetailService;
-    private readonly IPurchaseOrderService _orderService;
+    private readonly ISalesOrderDetailService _orderDetailService;
+    private readonly ISalesOrderService _orderService;
     private readonly IProductService _productService;
 
-    public PurchaseOrderDetailsController(
-        IPurchaseOrderDetailService orderDetailService,
-        IPurchaseOrderService orderService,
+    public SalesOrderDetailsController(
+        ISalesOrderDetailService orderDetailService,
+        ISalesOrderService orderService,
         IProductService productService)
     {
         _orderDetailService = orderDetailService;
@@ -20,16 +21,15 @@ public class PurchaseOrderDetailsController : Controller
         _productService = productService;
     }
 
-    public IActionResult Index(int? purchaseOrderId)
+    public IActionResult Index(int salesOrderId)
     {
-        ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID");
-        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
-        if (purchaseOrderId.HasValue)
+        if (salesOrderId > 0)
         {
-            var details = _orderDetailService.GetByPurchaseOrderId(purchaseOrderId);
+            var details = _orderDetailService.GetBySalesOrderId(salesOrderId);
             return View(details);
         }
-        
+        ViewBag.SalesOrders = new SelectList(_orderService.GetAll(), "SalesOrderID", "SalesOrderID");
+        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
         var detaills = _orderDetailService.GetAll();
         return View(detaills);
 
@@ -37,29 +37,29 @@ public class PurchaseOrderDetailsController : Controller
 
     public IActionResult Create()
     {
-        ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID");
+        ViewBag.SalesOrders = new SelectList(_orderService.GetAll(), "SalesOrderID", "SalesOrderID");
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(PurchaseOrderDetails detail)
+    public IActionResult Create(SalesOrderDetails detail)
     {
         if (ModelState.IsValid)
         {
-            _orderDetailService.Add(detail);   // ✅ fix: use _orderDetailService
+            _orderDetailService.Add(detail);
             return RedirectToAction(nameof(Index));
         }
 
         // Rebuild dropdowns if validation fails
-        ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID", detail.PurchaseOrderID);
+        ViewBag.SalesOrders = new SelectList(_orderService.GetAll(), "SalesOrderID", "SalesOrderID", detail.SalesOrderID);
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code", detail.ProductID);
         return View(detail);
     }
 
     [HttpPost]
-public IActionResult Update([FromBody] PurchaseOrderDetails model)
+public IActionResult Update([FromBody] SalesOrderDetails model)
 {
     if (ModelState.IsValid)
     {

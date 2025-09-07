@@ -13,7 +13,7 @@ public class WarehouseStockService : IWarehouseStockService
     public IEnumerable<WarehouseStock> GetAll()
         => _context.WarehouseStocks
                    .Include(d => d.Warehouse)
-                   .Include(d => d.ProductID)
+                   .Include(d => d.Product)
                    .ToList();
 
     public WarehouseStock GetById(int id)
