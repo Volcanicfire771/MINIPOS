@@ -9,6 +9,7 @@ namespace POSSystemMVC.Services.Intrefaces
         IEnumerable<PurchaseOrder> Filter();
 
         PurchaseOrder? GetById(int id);
+        void Update(PurchaseOrder order);
         void Add(PurchaseOrder order);
         void Delete(int id);
     }

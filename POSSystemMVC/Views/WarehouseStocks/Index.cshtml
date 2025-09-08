@@ -2,7 +2,7 @@
 
 <div style="display:flex;justify-content:space-between;">
     <h2>All Warehouse Stocks</h2>
-    <a class="btn btn-primary" asp-action="Create">Create Stock</a>
+    @* <a class="btn btn-primary" asp-action="Create">Create Stock</a> *@
 </div>
 
 <input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
@@ -28,25 +28,6 @@
                 </td>
                 <td class="view-mode">
                     <span>@pod.Quantity</span>
-                </td>
-                
-                
-
-                @* <!-- Edit Mode -->
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.WarehouseID" class="form-control" asp-items="ViewBag.Warehouses">
-                        <option value="">-- Select Warehouse --</option>
-                    </select>
-                </td>
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.ProductID" class="form-control" asp-items="ViewBag.Products">
-                        <option value="">-- Select Product --</option>
-                    </select>
-                </td> *@
-
-
-                <td class="edit-mode" style="display:none">
-                    <input type="number" value="@pod.Quantity" class="form-control" />
                 </td>
 
                 

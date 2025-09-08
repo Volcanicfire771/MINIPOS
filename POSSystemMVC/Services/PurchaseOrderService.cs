@@ -19,6 +19,11 @@ namespace POSSystemMVC.Services
                 .Include(p => p.Vendor)
                 .Include(p => p.Branch).ToList();
         }
+        public void Update(PurchaseOrder order)
+        {
+            _context.PurchaseOrders.Update(order);
+            _context.SaveChanges();
+        }
 
         public IEnumerable<PurchaseOrder> Filter()
         {

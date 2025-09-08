@@ -2,9 +2,12 @@
 
 <div style="display:flex;justify-content:space-between;">
     <h2>All Sales Orders</h2>
-    <a class="btn btn-primary" asp-action="Create">Create SO</a>
-</div>
+    <a class="btn btn-primary" asp-action="Index" asp-controller="SalesOrderDetails">All Details</a>
 
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        Create SO
+    </button>
+</div>
 
 <br />
 <br />
@@ -12,7 +15,6 @@
     <select name="branchID" asp-items="ViewBag.Branches" class="form-control">
         <option value="">Filter by Branch</option>
     </select>
-
 
     <select name="customerID" asp-items="ViewBag.Customers" class="form-control">
         <option value="">Filter by Customer</option>
@@ -32,125 +34,98 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var pod in Model)
+        @foreach (var so in Model)
         {
-            <tr id="row-@pod.SalesOrderID">
-                <!-- Display Mode -->
-                <td class="view-mode">
-                    <span>@pod.Customer?.Name</span>
-                </td>
-                <td class="view-mode">
-                    <span>@pod.Branch?.Name</span>
-                </td>
-                <td class="view-mode">
-                    <span>@pod.SODate</span>
-                </td>
-
-                <!-- Edit Mode -->
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.CustomerID" class="form-control" asp-items="ViewBag.Customers">
-                        <option value="">-- Select Customer --</option>
-                    </select>
-                </td>
-
-
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.BranchID" class="form-control" asp-items="ViewBag.Branches">
-                        <option value="">-- Select Branch --</option>
-                    </select>
-                </td>
-
-                <td class="edit-mode" style="display:none">
-                    <input type="date" value="@pod.SODate" class="form-control" />
-                </td>
-
-
-
+            <tr id="row-@so.SalesOrderID">
+                <td><span>@so.Customer?.Name</span></td>
+                <td><span>@so.Branch?.Name</span></td>
+                <td><span>@so.SODate</span></td>
                 <td style="text-align:center;">
-                    <!-- Edit/Save -->
-                    <button class="btn btn-sm btn-primary edit-btn"
-                            data-id="@pod.SalesOrderID"
-                            onclick="toggleEditMode(@pod.SalesOrderID)">
+                    <!-- Edit -->
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-@so.SalesOrderID">
                         Edit
                     </button>
-                    <a asp-action="Delete" asp-route-id="@pod.SalesOrderID" class="btn btn-sm btn-danger">Delete</a>
-
-                    <!-- Details -->
-                    @* <button class="btn btn-sm btn-info details-btn" data-id="@pod.SalesOrderID">
-                        Details
-                    </button> *@
-                    <a class="btn btn-sm btn-info" asp asp-controller="SalesOrderDetails" asp-action="Index" asp-route-salesOrderID="@pod.SalesOrderID">View Details</a>
-
+                    <a asp-action="Delete" asp-route-id="@so.SalesOrderID" class="btn btn-sm btn-danger">Delete</a>
+                    <a class="btn btn-sm btn-info" asp-controller="SalesOrderDetails" asp-action="Index" asp-route-salesOrderID="@so.SalesOrderID">View Details</a>
                 </td>
             </tr>
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal-@so.SalesOrderID" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-controller="SalesOrders" asp-action="Update" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Sales Order</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="SalesOrderID" value="@so.SalesOrderID" />
+
+                                <div class="form-group mb-2">
+                                    <label>Customer</label>
+                                    <select name="CustomerID" class="form-control" asp-items="ViewBag.Customers" asp-for="@so.CustomerID"></select>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label>Branch</label>
+                                    <select name="BranchID" class="form-control" asp-items="ViewBag.Branches" asp-for="@so.BranchID"></select>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label>Date</label>
+                                    <input type="date" name="SODate" value="@so.SODate.ToString("yyyy-MM-dd")" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         }
     </tbody>
 </table>
 
-<!-- Details Modal -->
-<div class="modal fade" id="detailsModal" tabindex="-1">
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sales Order</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
+            <form asp-controller="SalesOrders" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Sales Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-2">
+                        <label>Customer</label>
+                        <select name="CustomerID" class="form-control" asp-items="ViewBag.Customers"></select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label>Branch</label>
+                        <select name="BranchID" class="form-control" asp-items="ViewBag.Branches"></select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label>Date</label>
+                        <input type="date" name="SODate" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleEditMode(detailId) {
-        var row = $('#row-' + detailId);
-        var isEditing = row.find('.edit-mode').is(':visible');
-
-        if (isEditing) {
-            saveDetail(detailId);
-        } else {
-            row.find('.view-mode').hide();
-            row.find('.edit-mode').show();
-            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
-        }
-    }
-
-        function saveDetail(detailId) {
-        var row = $('#row-' + detailId);
-        var detailData = {
-            PurchaseOrderDetailsID: detailId,
-            CustomerID: row.find('.edit-mode:eq(0) select').val(),
-            BranchID: row.find('.edit-mode:eq(1) select').val(),
-            Date: row.find('.edit-mode:eq(2) input').val()
-        };
-
-        $.ajax({
-            url: '@Url.Action("Update", "SalesOrders")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(detailData),
-            success: function () {
-                // update displayed values
-                row.find('.view-mode:eq(0) span').text(row.find('.edit-mode:eq(0) select option:selected').text());
-                row.find('.view-mode:eq(1) span').text(row.find('.edit-mode:eq(1) select option:selected').text());
-                row.find('.view-mode:eq(2) span').text(detailData.Date);
-
-                row.find('.edit-mode').hide();
-                row.find('.view-mode').show();
-                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
-
-                alert('Detail updated successfully!');
-            },
-            error: function (xhr, status, error) {
-                console.log('Error:', error, xhr.responseText);
-                alert('Error updating detail');
-            }
-        });
-    }
-
-
     function tableSearch(){
         let input = document.getElementById("myInput");
         let filter = input.value.toUpperCase();
@@ -167,31 +142,6 @@
                     tr[i].style.display = "none"
                 }
             }
-        }
-    }
-
-    document.querySelectorAll('.details-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            var detailId = this.getAttribute('data-id');
-            showDetail(detailId);
-        });
-    });
-
-    function showDetail(detailId) {
-        var row = document.getElementById('row-' + detailId);
-
-        if (row) {
-            var cells = row.getElementsByTagName('td');
-            var detailsHtml = `
-                <div><strong>ID:</strong> ${detailId}</div>
-                <div><strong>Customer:</strong> ${cells[0].querySelector('span').textContent}</div>
-                <div><strong>Branch:</strong> ${cells[1].querySelector('span').textContent}</div>
-                <div><strong>Date:</strong> ${cells[2].querySelector('span').textContent}</div>
-            `;
-
-            document.getElementById('modalBody').innerHTML = detailsHtml;
-            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
-            modal.show();
         }
     }
 </script>

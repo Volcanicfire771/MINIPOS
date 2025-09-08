@@ -7,7 +7,7 @@ public interface ISalesOrderDetailService
     void Add(SalesOrderDetails detail);
     IEnumerable<SalesOrderDetails> GetBySalesOrderId(int salesOrderId);
 
-    void Update(SalesOrderDetails detail);
+    void Update(int id, int quantity);
     void Delete(int id);
     void Save();
 }

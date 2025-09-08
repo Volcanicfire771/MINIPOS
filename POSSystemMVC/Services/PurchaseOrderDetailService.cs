@@ -34,11 +34,16 @@ public class PurchaseOrderDetailService : IPurchaseOrderDetailService
         Save();
     }
 
-    public void Update(PurchaseOrderDetails detail)
+    public void Update(int id, int quantity)
     {
-        _context.PurchaseOrderDetails.Update(detail);
-        Save();
+        var detail = _context.PurchaseOrderDetails.Find(id);
+        if (detail != null)
+        {
+            detail.Quantity = quantity;
+            Save();
+        }
     }
+
 
     public void Delete(int id)
     {

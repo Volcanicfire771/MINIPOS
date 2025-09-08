@@ -37,7 +37,17 @@ public class PurchaseOrdersController : Controller
         ViewBag.Branches = new SelectList(_branchService.GetAll(), "BranchID", "Name");
         return View(orders.ToList());
     }
-
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Update(PurchaseOrder order)
+    {
+        if (ModelState.IsValid)
+        {
+            _orderService.Update(order);
+            return RedirectToAction(nameof(Index));
+        }
+        return View(order);
+    }
     public IActionResult Create()
     {
         ViewBag.Vendors = new SelectList(_vendorService.GetAll(), "VendorID", "Name");

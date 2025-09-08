@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services.Interfaces;
 using POSSystemMVC.Services.Intrefaces;
@@ -21,18 +20,23 @@ public class SalesOrderDetailsController : Controller
         _productService = productService;
     }
 
-    public IActionResult Index(int salesOrderId)
+    public IActionResult Index(int? salesOrderId)
     {
-        if (salesOrderId > 0)
+        IEnumerable<SalesOrderDetails> details;
+
+        if (salesOrderId.HasValue && salesOrderId.Value > 0)
         {
-            var details = _orderDetailService.GetBySalesOrderId(salesOrderId);
-            return View(details);
+            details = _orderDetailService.GetBySalesOrderId(salesOrderId.Value);
         }
+        else
+        {
+            details = _orderDetailService.GetAll();
+        }
+
         ViewBag.SalesOrders = new SelectList(_orderService.GetAll(), "SalesOrderID", "SalesOrderID");
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
-        var detaills = _orderDetailService.GetAll();
-        return View(detaills);
 
+        return View(details);
     }
 
     public IActionResult Create()
@@ -49,33 +53,25 @@ public class SalesOrderDetailsController : Controller
         if (ModelState.IsValid)
         {
             _orderDetailService.Add(detail);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { salesOrderId = detail.SalesOrderID });
         }
 
-        // Rebuild dropdowns if validation fails
         ViewBag.SalesOrders = new SelectList(_orderService.GetAll(), "SalesOrderID", "SalesOrderID", detail.SalesOrderID);
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code", detail.ProductID);
         return View(detail);
     }
 
     [HttpPost]
-public IActionResult Update([FromBody] SalesOrderDetails model)
-{
-    if (ModelState.IsValid)
+    [ValidateAntiForgeryToken]
+    public IActionResult Update(int salesOrderDetailsID, int quantity)
     {
-        _orderDetailService.Update(model);
-        return Ok();
+        _orderDetailService.Update(salesOrderDetailsID, quantity);
+        return RedirectToAction(nameof(Index));
     }
 
-    return BadRequest(ModelState);
-}
-
-public IActionResult Delete(int id)
-{
-    _orderDetailService.Delete(id);
-    return RedirectToAction(nameof(Index));
-}
-
-
-
+    public IActionResult Delete(int id)
+    {
+        _orderDetailService.Delete(id);
+        return RedirectToAction(nameof(Index));
+    }
 }

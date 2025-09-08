@@ -9,7 +9,7 @@ namespace POSSystemMVC.Services.Interfaces
         IEnumerable<SalesOrder> Filter();
 
         void Add(SalesOrder so);
-        void Update(SalesOrder so);
+        void Update(SalesOrder order);
         void Delete(int id);
     }
 }

@@ -1,0 +1,181 @@
+﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrderReceipt>
+
+<h2>Purchase Order Receipts</h2>
+<a class="btn btn-primary" asp-action="Index" asp-controller="PurchaseOrders">All Purchase Orders</a>
+
+<br />
+<br />
+<form method="get" asp-action="Index" style="padding: 10px;">
+    <select name="WarehouseID" asp-items="ViewBag.Warehouses" class="form-control">
+        <option value="">Filter by Warehouse</option>
+    </select>
+
+    <select name="PurchaseOrderID" asp-items="ViewBag.PurchaseOrders" class="form-control">
+        <option value="">Filter by PO</option>
+    </select>
+    <br />
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createPurchaseOrderReceiptModal">
+    New Receipt
+</button>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>POID</th>
+            <th>Warehouse</th>
+            <th>Product</th>
+            <th>Received Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.ReceiptID</td>
+                <td>@order.PurchaseOrderID</td>
+                <td>@order.Warehouse?.Name</td>
+                <td>@order.Product?.code</td>
+                <td>@order.ReceivedQuantity</td>
+                <td>
+                    <a class="btn btn-sm btn-info"
+                       asp-controller="PurchaseOrderReceipts"
+                       asp-action="Details"
+                       asp-route-id="@order.ReceiptID">
+                        View Details
+                    </a>
+
+                    <button type="button"
+                            class="btn btn-sm btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editPurchaseOrderReceiptModal"
+                            data-id="@order.ReceiptID"
+                            data-poid="@order.PurchaseOrderID"
+                            data-warehouseid="@order.WarehouseID"
+                            data-productid="@order.ProductID"
+                            data-receivedquantity="@order.ReceivedQuantity">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="createPurchaseOrderReceiptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" method="post">
+                    <div class="form-group mb-2">
+                        <label for="PurchaseOrderID">Purchase Order</label>
+                        <select id="PurchaseOrderID" name="PurchaseOrderID" class="form-control" asp-items="ViewBag.PurchaseOrders">
+                            <option value="">-- Select Purchase Order --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="WarehouseID">Warehouse</label>
+                        <select id="WarehouseID" name="WarehouseID" class="form-control" asp-items="ViewBag.Warehouses">
+                            <option value="">-- Select Warehouse --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="ProductID">Product</label>
+                        <select id="ProductID" name="ProductID" class="form-control" asp-items="ViewBag.Products">
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="ReceivedQuantity">Received Quantity</label>
+                        <input id="ReceivedQuantity" name="ReceivedQuantity" class="form-control" type="number" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editPurchaseOrderReceiptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" id="Edit_ReceiptID" name="ReceiptID" />
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_PurchaseOrderID">Purchase Order</label>
+                        <select id="Edit_PurchaseOrderID" name="PurchaseOrderID" class="form-control" asp-items="ViewBag.PurchaseOrders">
+                            <option value="">-- Select Purchase Order --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_WarehouseID">Warehouse</label>
+                        <select id="Edit_WarehouseID" name="WarehouseID" class="form-control" asp-items="ViewBag.Warehouses">
+                            <option value="">-- Select Warehouse --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_ProductID">Product</label>
+                        <select id="Edit_ProductID" name="ProductID" class="form-control" asp-items="ViewBag.Products">
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_ReceivedQuantity">Received Quantity</label>
+                        <input id="Edit_ReceivedQuantity" name="ReceivedQuantity" class="form-control" type="number" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var editModal = document.getElementById("editPurchaseOrderReceiptModal");
+
+        editModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget;
+
+            var id = button.getAttribute("data-id");
+            var poid = button.getAttribute("data-poid");
+            var warehouse = button.getAttribute("data-warehouseid");
+            var product = button.getAttribute("data-productid");
+            var receivedQuantity = button.getAttribute("data-receivedquantity");
+
+            document.getElementById("Edit_ReceiptID").value = id;
+            document.getElementById("Edit_PurchaseOrderID").value = poid;
+            document.getElementById("Edit_WarehouseID").value = warehouse;
+            document.getElementById("Edit_ProductID").value = product;
+            document.getElementById("Edit_ReceivedQuantity").value = receivedQuantity;
+        });
+    });
+</script>

@@ -65,16 +65,15 @@ namespace POSSystemMVC.Controllers
 
 
         [HttpPost]
-        public IActionResult Update([FromBody] SalesOrder model)
+        [ValidateAntiForgeryToken]
+        public IActionResult Update(SalesOrder order)
         {
-            //Console.WriteLine($"Update called: ID={model.BranchID}, Name={model.Name}, Location={model.Location}");
-
             if (ModelState.IsValid)
             {
-                _service.Update(model);  
-                return Ok();
+                _service.Update(order);
+                return RedirectToAction(nameof(Index));
             }
-            return BadRequest(ModelState);
+            return View(order);
         }
 
 

@@ -22,24 +22,50 @@ public class PurchaseOrderDetailsController : Controller
 
     public IActionResult Index(int? purchaseOrderId)
     {
-        ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID");
-        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
+        IEnumerable<PurchaseOrderDetails> details;
+
         if (purchaseOrderId.HasValue)
         {
-            var details = _orderDetailService.GetByPurchaseOrderId(purchaseOrderId);
-            return View(details);
-        }
-        
-        var detaills = _orderDetailService.GetAll();
-        return View(detaills);
+            details = _orderDetailService.GetByPurchaseOrderId(purchaseOrderId.Value);
 
+            // Pass selected PO to the ViewBag
+            ViewBag.PurchaseOrders = new SelectList(
+                _orderService.GetAll(),
+                "PurchaseOrderID",
+                "PurchaseOrderID",
+                purchaseOrderId.Value
+            );
+        }
+        else
+        {
+            details = _orderDetailService.GetAll();
+
+            // Build dropdown with no preselected value
+            ViewBag.PurchaseOrders = new SelectList(
+                _orderService.GetAll(),
+                "PurchaseOrderID",
+                "PurchaseOrderID"
+            );
+        }
+
+        ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
+
+        return View(details);
     }
 
-    public IActionResult Create()
+
+    public IActionResult Create(int? id)
     {
+
         ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID");
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
-        return View();
+        if (id.HasValue) {
+            var details = _orderDetailService.GetByPurchaseOrderId(id);
+            return View(details);
+        }
+        var detaills = _orderDetailService.GetAll();
+
+        return View(detaills);
     }
 
     [HttpPost]
@@ -48,8 +74,8 @@ public class PurchaseOrderDetailsController : Controller
     {
         if (ModelState.IsValid)
         {
-            _orderDetailService.Add(detail);   // ✅ fix: use _orderDetailService
-            return RedirectToAction(nameof(Index));
+            _orderDetailService.Add(detail);   
+            return RedirectToAction(nameof(Index), new {purchaseOrderID = detail.PurchaseOrderID});
         }
 
         // Rebuild dropdowns if validation fails
@@ -59,18 +85,18 @@ public class PurchaseOrderDetailsController : Controller
     }
 
     [HttpPost]
-public IActionResult Update([FromBody] PurchaseOrderDetails model)
-{
-    if (ModelState.IsValid)
+    [ValidateAntiForgeryToken]
+    public IActionResult Update(int purchaseOrderDetailsID, int quantity)
     {
-        _orderDetailService.Update(model);
-        return Ok();
+        _orderDetailService.Update(purchaseOrderDetailsID, quantity);
+        return RedirectToAction(nameof(Index));
     }
 
-    return BadRequest(ModelState);
-}
 
-public IActionResult Delete(int id)
+
+
+
+    public IActionResult Delete(int id)
 {
     _orderDetailService.Delete(id);
     return RedirectToAction(nameof(Index));

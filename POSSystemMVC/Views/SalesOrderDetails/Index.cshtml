@@ -2,137 +2,106 @@
 
 <div style="display:flex;justify-content:space-between;">
     <h2>All Sales Order Details</h2>
-    <a class="btn btn-primary" asp-action="Create">Create SOD</a>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        Create SOD
+    </button>
 </div>
 
-<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" />
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" class="form-control my-2" />
+
 <table class="table">
     <thead>
         <tr>
+            <th>SOID</th>
+            <th>Customer</th>
+            <th>Branch</th>
+            <th>Date</th>
             <th>Product</th>
-            <th>Sales Order</th>
             <th>Quantity</th>
             <th style="text-align:center;">Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var pod in Model)
+        @foreach (var sod in Model)
         {
-            <tr id="row-@pod.SalesOrderDetailsID">
-                <!-- Display Mode -->
-                <td class="view-mode">
-                    <span>@pod.Product?.code</span>
-                </td>
-                <td class="view-mode">
-                    <span>@pod.SalesOrder?.SalesOrderID</span>
-                </td>
-                <td class="view-mode">
-                    <span>@pod.Quantity</span>
-                </td>
-
-                <!-- Edit Mode -->
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.ProductID" class="form-control" asp-items="ViewBag.Products">
-                        <option value="">-- Select Product --</option>
-                    </select>
-                </td>
-
-
-                <td class="edit-mode" style="display:none">
-                    <select asp-for="@pod.SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrders">
-                        <option value="">-- Select SO --</option>
-                    </select>
-                </td>
-
-                <td class="edit-mode" style="display:none">
-                    <input type="number" value="@pod.Quantity" class="form-control" />
-                </td>
-
-                
-
+            <tr>
+                <td>@sod.SalesOrder?.SalesOrderID</td>
+                <td>@sod.SalesOrder?.Customer?.Name</td>
+                <td>@sod.SalesOrder?.Branch?.Name</td>
+                <td>@sod.SalesOrder?.SODate.ToShortDateString()</td>
+                <td>@sod.Product?.code</td>
+                <td>@sod.Quantity</td>
                 <td style="text-align:center;">
-                    <!-- Edit/Save -->
-                    <button class="btn btn-sm btn-primary edit-btn"
-                            data-id="@pod.SalesOrderDetailsID"
-                            onclick="toggleEditMode(@pod.SalesOrderDetailsID)">
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-@sod.SalesOrderDetailsID">
                         Edit
                     </button>
-                    <a asp-action="Delete" asp-route-id="@pod.SalesOrderDetailsID" class="btn btn-sm btn-danger">Delete</a>
-
-                    <!-- Details -->
-                    <button class="btn btn-sm btn-info details-btn" data-id="@pod.SalesOrderDetailsID">
-                        Details
-                    </button>
+                    <a asp-action="Delete" asp-route-id="@sod.SalesOrderDetailsID" class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>
+
+            <!-- Edit Modal (only Quantity editable) -->
+            <div class="modal fade" id="editModal-@sod.SalesOrderDetailsID" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-controller="SalesOrderDetails" asp-action="Update" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Quantity</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="SalesOrderDetailsID" value="@sod.SalesOrderDetailsID" />
+                                <div class="form-group mb-2">
+                                    <label>Quantity</label>
+                                    <input type="number" name="Quantity" value="@sod.Quantity" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         }
     </tbody>
 </table>
 
-<!-- Details Modal -->
-<div class="modal fade" id="detailsModal" tabindex="-1">
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Purchase Order Detail</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalBody"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
+            <form asp-controller="SalesOrderDetails" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Sales Order Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-2">
+                        <label>Product</label>
+                        <select name="ProductID" class="form-control" asp-items="ViewBag.Products"></select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label>Sales Order</label>
+                        <select name="SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrders"></select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label>Quantity</label>
+                        <input type="number" name="Quantity" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleEditMode(detailId) {
-        var row = $('#row-' + detailId);
-        var isEditing = row.find('.edit-mode').is(':visible');
-
-        if (isEditing) {
-            saveDetail(detailId);
-        } else {
-            row.find('.view-mode').hide();
-            row.find('.edit-mode').show();
-            row.find('.edit-btn').text('Save').removeClass('btn-primary').addClass('btn-success');
-        }
-    }
-
-        function saveDetail(detailId) {
-        var row = $('#row-' + detailId);
-        var detailData = {
-            SalesOrderDetailsID: detailId,
-            ProductID: row.find('.edit-mode:eq(0) select').val(),
-            SalesOrderID: row.find('.edit-mode:eq(1) select').val(),
-            Quantity: row.find('.edit-mode:eq(2) input').val()
-        };
-
-        $.ajax({
-            url: '@Url.Action("Update", "SalesOrderDetails")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(detailData),
-            success: function () {
-                // update displayed values
-                row.find('.view-mode:eq(0) span').text(row.find('.edit-mode:eq(0) select option:selected').text());
-                row.find('.view-mode:eq(1) span').text(row.find('.edit-mode:eq(1) select option:selected').text());
-                row.find('.view-mode:eq(2) span').text(detailData.Quantity);
-
-                row.find('.edit-mode').hide();
-                row.find('.view-mode').show();
-                row.find('.edit-btn').text('Edit').removeClass('btn-success').addClass('btn-primary');
-
-                alert('Detail updated successfully!');
-            },
-            error: function (xhr, status, error) {
-                console.log('Error:', error, xhr.responseText);
-                alert('Error updating detail');
-            }
-        });
-    }
-
-
     function tableSearch(){
         let input = document.getElementById("myInput");
         let filter = input.value.toUpperCase();
@@ -140,7 +109,7 @@
         let tr = table.getElementsByTagName("tr");
 
         for(let i = 0; i < tr.length; i++){
-            let td = tr[i].getElementsByTagName("td")[0];
+            let td = tr[i].getElementsByTagName("td")[4]; // Product column
             if(td){
                 let txtValue = td.textContent || td.innerText;
                 if(txtValue.toUpperCase().indexOf(filter) > -1){
@@ -149,31 +118,6 @@
                     tr[i].style.display = "none"
                 }
             }
-        }
-    }
-
-    document.querySelectorAll('.details-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            var detailId = this.getAttribute('data-id');
-            showDetail(detailId);
-        });
-    });
-
-    function showDetail(detailId) {
-        var row = document.getElementById('row-' + detailId);
-
-        if (row) {
-            var cells = row.getElementsByTagName('td');
-            var detailsHtml = `
-                <div><strong>ID:</strong> ${detailId}</div>
-                <div><strong>Product:</strong> ${cells[0].querySelector('span').textContent}</div>
-                <div><strong>Sales Order:</strong> ${cells[1].querySelector('span').textContent}</div>
-                <div><strong>Quantity:</strong> ${cells[2].querySelector('span').textContent}</div>
-            `;
-
-            document.getElementById('modalBody').innerHTML = detailsHtml;
-            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
-            modal.show();
         }
     }
 </script>

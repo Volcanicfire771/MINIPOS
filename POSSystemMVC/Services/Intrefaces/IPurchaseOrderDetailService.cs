@@ -7,7 +7,7 @@ public interface IPurchaseOrderDetailService
 
     IEnumerable<PurchaseOrderDetails> GetByPurchaseOrderId(int? purchaseOrderId);
     void Add(PurchaseOrderDetails detail);
-    void Update(PurchaseOrderDetails detail);
+    void Update(int id, int quantity);
     void Delete(int id);
     void Save();
 }

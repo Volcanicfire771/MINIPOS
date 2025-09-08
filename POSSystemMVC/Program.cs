@@ -19,6 +19,9 @@ builder.Services.AddScoped<IWarehouseStockService, WarehouseStockService>();
 builder.Services.AddScoped<IPurchaseOrderReceiptService, PurchaseOrderReceiptService>();
 builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
 builder.Services.AddScoped<ISalesOrderDetailService, SalesOrderDetailService>();
+builder.Services.AddScoped<IPurchaseOrderReceiptService, PurchaseOrderReceiptService>();
+
+
 
 
 builder.Services.AddDbContext<POSDbContext>(options => 

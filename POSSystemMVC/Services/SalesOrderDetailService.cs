@@ -14,15 +14,28 @@ public class SalesOrderDetailService : ISalesOrderDetailService
         => _context.SalesOrderDetails
                    .Include(d => d.Product)
                    .Include(d => d.SalesOrder)
+                       .ThenInclude(o => o.Customer)
+                   .Include(d => d.SalesOrder)
+                       .ThenInclude(o => o.Branch)
                    .ToList();
 
     public SalesOrderDetails GetById(int id)
-        => _context.SalesOrderDetails.Find(id);
+        => _context.SalesOrderDetails
+                   .Include(d => d.Product)
+                   .Include(d => d.SalesOrder)
+                       .ThenInclude(o => o.Customer)
+                   .Include(d => d.SalesOrder)
+                       .ThenInclude(o => o.Branch)
+                   .FirstOrDefault(d => d.SalesOrderDetailsID == id);
 
     public IEnumerable<SalesOrderDetails> GetBySalesOrderId(int salesOrderId)
     {
         return _context.SalesOrderDetails
             .Include(d => d.Product)
+            .Include(d => d.SalesOrder)
+                .ThenInclude(o => o.Customer)
+            .Include(d => d.SalesOrder)
+                .ThenInclude(o => o.Branch)
             .Where(d => d.SalesOrderID == salesOrderId)
             .ToList();
     }
@@ -33,10 +46,14 @@ public class SalesOrderDetailService : ISalesOrderDetailService
         Save();
     }
 
-    public void Update(SalesOrderDetails detail)
+    public void Update(int id, int quantity)
     {
-        _context.SalesOrderDetails.Update(detail);
-        Save();
+        var detail = _context.SalesOrderDetails.Find(id);
+        if (detail != null)
+        {
+            detail.Quantity = quantity;
+            Save();
+        }
     }
 
     public void Delete(int id)

@@ -79,7 +79,7 @@ public IActionResult Update([FromBody] WarehouseStock model)
 
 public IActionResult Delete(int id)
 {
-        _warehouseService.Delete(id);
+        _warehouseStockService.Delete(id);
     return RedirectToAction(nameof(Index));
 }
 

@@ -16,7 +16,9 @@ namespace POSSystemMVC.Models
         [Required]
         public int WarehouseID { get; set; }
 
-       
+        [Required]
+        public int ProductID { get; set; }
+
 
         // Navigation
         [ValidateNever]                            
@@ -24,5 +26,9 @@ namespace POSSystemMVC.Models
 
         [ValidateNever]
         public PurchaseOrder? PurchaseOrder { get; set; }
+        
+        [ValidateNever]
+        public Product? Product { get; set; }
+
     }
 }
