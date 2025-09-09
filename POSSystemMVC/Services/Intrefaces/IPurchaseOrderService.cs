@@ -6,6 +6,7 @@ namespace POSSystemMVC.Services.Intrefaces
     public interface IPurchaseOrderService
     {
         IEnumerable<PurchaseOrder> GetAll();
+
         IEnumerable<PurchaseOrder> Filter();
 
         PurchaseOrder? GetById(int id);

@@ -44,6 +44,14 @@
                         Edit
                     </button>
                     <a asp-action="Delete" asp-route-id="@sod.SalesOrderDetailsID" class="btn btn-sm btn-danger">Delete</a>
+
+                    <a class="btn btn-sm btn-info"
+                       asp-controller="Invoices"
+                       asp-action="Index"
+                       asp-route-SalesOrderID="@sod.SalesOrderID">
+                        View Invoice
+                    </a>
+
                 </td>
             </tr>
 

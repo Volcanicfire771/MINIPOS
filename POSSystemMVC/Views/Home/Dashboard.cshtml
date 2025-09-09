@@ -1,0 +1,137 @@
+﻿@* Views/Home/Dashboard.cshtml *@
+<div class="row">
+    <!-- Sales Revenue -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>📈 Monthly Sales Revenue</h5></div>
+            <div class="card-body">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>🏆 Top Selling Products</h5></div>
+            <div class="card-body">
+                <canvas id="productsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Low Stock -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>⚠️ Low Stock Alert</h5></div>
+            <div class="card-body">
+                <div id="lowStockList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales by Category -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>📦 Sales by Category</h5></div>
+            <div class="card-body">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchData(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(res.statusText);
+            return res.json();
+        }
+
+        // 1. Sales Chart
+        async function loadSalesChart() {
+            const data = await fetchData('/Graph/MonthlySalesRevenue');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            new Chart(document.getElementById('salesChart'), {
+                type: 'line',
+                data: {
+                    labels: data.map(d => months[d.month - 1]),
+                    datasets: [{
+                        label: 'Sales ($)',
+                        data: data.map(d => d.totalSales),
+                        borderColor: 'rgb(75,192,192)',
+                        backgroundColor: 'rgba(75,192,192,0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                }
+            });
+        }
+
+        // 2. Top Products
+        async function loadProductsChart() {
+            const data = await fetchData('/Graph/TopSellingProducts');
+            new Chart(document.getElementById('productsChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.product),
+                    datasets: [{
+                        label: 'Units Sold',
+                        data: data.map(d => d.totalSold),
+                        backgroundColor: 'rgba(54,162,235,0.6)'
+                    }]
+                },
+                options: { indexAxis: 'y' }
+            });
+        }
+
+        // 3. Low Stock
+        async function loadLowStock() {
+            const data = await fetchData('/Graph/LowStockAlert?threshold=15');
+            const container = document.getElementById('lowStockList');
+            if (data.length === 0) {
+                container.innerHTML = '<div class="alert alert-success">✅ All products are well stocked!</div>';
+            } else {
+                let html = '<ul class="list-group">';
+                data.forEach(item => {
+                    html += `<li class="list-group-item list-group-item-warning">
+                        <strong>${item.product}</strong> - ${item.currentStock} left
+                        <br><small>${item.warehouse} - ${item.description}</small>
+                    </li>`;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
+            }
+        }
+
+        // 4. Category Sales
+        async function loadCategoryChart() {
+            const data = await fetchData('/Graph/SalesByCategory');
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => `${d.category} ($${d.revenue})`),
+                    datasets: [{
+                        data: data.map(d => d.revenue),
+                        backgroundColor: [
+                            '#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'
+                        ]
+                    }]
+                },
+                options: { plugins: { legend: { position: 'right' } } }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSalesChart();
+            loadProductsChart();
+            loadLowStock();
+            loadCategoryChart();
+        });
+    </script>
+}

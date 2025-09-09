@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="~/POSSystemMVC.styles.css" asp-append-version="true" />
 
 </head>
+
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -78,6 +79,10 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="InvoiceDetails" asp-action="index">Invoice Details</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="SalesExecutives" asp-action="index">Sales Executives</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -107,6 +112,7 @@
         <partial name="_ValidationScriptsPartial" />
     }
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
 </html>

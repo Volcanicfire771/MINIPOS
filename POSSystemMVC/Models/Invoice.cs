@@ -11,11 +11,18 @@ namespace POSSystemMVC.Models
         public decimal Amount { get; set; }
         public bool Status { get; set; }
         public int SalesOrderID { get; set; }
-       
-        [ValidateNever]
 
+        public int? SalesExecutiveID { get; set; }
+
+        [ValidateNever]
         public SalesOrder SalesOrder { get; set; }
+        
+        [ValidateNever]
+        public SalesExecutive SalesExecutive { get; set; }
+
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; } = new List<InvoiceDetail>();
+        public ICollection<SalesExecutive> SalesExecutives { get; set; } = new List<SalesExecutive>();
+
     }
 }
 

@@ -3,26 +3,41 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services.Interfaces;
+using POSSystemMVC.Services.Intrefaces;
 
 public class InvoicesController : Controller
 {
     private readonly IInvoiceService _invoiceService;
     private readonly ISalesOrderService _salesOrderService;
+    private readonly ISalesExecutiveService _salesExecutiveService;
 
-    public InvoicesController(IInvoiceService invoiceService, ISalesOrderService salesOrderService, IWarehouseService warehouseService)
+
+
+    public InvoicesController(IInvoiceService invoiceService, ISalesOrderService salesOrderService, IWarehouseService warehouseService, ISalesExecutiveService salesExecutiveService)
     {
         _invoiceService = invoiceService;
         _salesOrderService = salesOrderService;
+        _salesExecutiveService = salesExecutiveService;
 
     }
 
-    public IActionResult Index(bool? status)
+    public IActionResult Index(bool? status, int? SalesOrderID)
     {
         IEnumerable<Invoice> invoices;
         ViewBag.SalesOrders = new SelectList(_salesOrderService.GetAll(), "SalesOrderID", "SalesOrderID");
+        ViewBag.SalesExecutives = new SelectList(_salesExecutiveService.GetAll(), "SalesExecutiveID", "Name");
 
-        if (status.HasValue)
+        // If SalesOrderID is provided in the query string, filter automatically
+        if (SalesOrderID.HasValue)
         {
+            invoices = _invoiceService.GetBySalesOrderId(SalesOrderID.Value);
+            ViewBag.FilteredBySalesOrder = true; // Flag to indicate automatic filtering
+            ViewBag.SelectedSalesOrderID = SalesOrderID.Value; // Store the filtered ID
+
+        }
+        else if (status.HasValue)
+        {
+            // Only apply status filter if no SalesOrderID filter is present
             invoices = _invoiceService.GetByStatus(status.Value);
         }
         else
@@ -30,14 +45,16 @@ public class InvoicesController : Controller
             invoices = _invoiceService.GetAll();
         }
 
-        ViewBag.StatusFilter = status; // keep filter value
+        ViewBag.StatusFilter = status;
         return View(invoices);
-
     }
+
+
 
     public IActionResult Create()
     {
         ViewBag.SalesOrders = new SelectList(_salesOrderService.GetAll(), "SalesOrderID", "SalesOrderID");
+        ViewBag.SalesExecutives = new SelectList(_salesExecutiveService.GetAll(), "SalesExecutiveID", "Name");
 
         return PartialView("_CreateInvoicePartial", new Invoice());
     }
@@ -54,6 +71,7 @@ public class InvoicesController : Controller
 
         // Repopulate dropdown when validation fails
         ViewBag.SalesOrders = new SelectList(_salesOrderService.GetAll(), "SalesOrderID", "SalesOrderID", invoice.SalesOrderID);
+        ViewBag.SalesExecutives = new SelectList(_salesExecutiveService.GetAll(), "SalesExecutiveID", "Name");
 
         // Reload Index with invoices and re-open modal
         var invoices = _invoiceService.GetAll();
@@ -73,6 +91,7 @@ public class InvoicesController : Controller
         }
 
         ViewBag.SalesOrders = new SelectList(_salesOrderService.GetAll(), "SalesOrderID", "SalesOrderID", invoice.SalesOrderID);
+        ViewBag.SalesExecutives = new SelectList(_salesExecutiveService.GetAll(), "SalesExecutiveID", "Name");
         ViewBag.ShowEditModal = true; // reopen modal if validation fails
         return View("Index", _invoiceService.GetAll());
     }

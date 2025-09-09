@@ -40,6 +40,14 @@ public class InvoiceService : IInvoiceService
         _context.Invoices.Update(invoice);
         Save();
     }
+    public IEnumerable<Invoice> GetBySalesOrderId(int? SalesOrderId)
+    {
+        return _context.Invoices
+            .Include(d => d.SalesOrder)
+            //.Include(d => d.Warehouse)
+            .Where(d => d.SalesOrderID == SalesOrderId)
+            .ToList();
+    }
 
     public void Delete(int id)
     {

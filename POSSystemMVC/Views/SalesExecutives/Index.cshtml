@@ -1,0 +1,238 @@
+﻿@model IEnumerable<POSSystemMVC.Models.SalesExecutive>
+
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2>All Sales Executives</h2>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createSEModal">
+        Register SE
+    </button>
+</div>
+
+<input type="text" placeholder="Search" id="myInput" onkeyup="tableSearch()" class="form-control my-2" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Branch</th>
+            <th style="text-align:center;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ex in Model)
+        {
+            <tr id="row-@ex.SalesExecutiveID">
+                <td><span>@ex.SalesExecutiveID</span></td>
+                <td><span>@ex.Name</span></td>
+                <td><span>@ex.Email</span></td>
+                <td><span>@ex.Phone</span></td>
+                <td><span>@ex.Branch?.Name</span></td>
+
+                <td style="text-align:center;">
+                    <button type="button"
+                            class="btn btn-sm btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editSEModal"
+                            data-id="@ex.SalesExecutiveID"
+                            data-name="@ex.Name"
+                            data-email="@ex.Email"
+                            data-phone="@ex.Phone"
+                            data-branchid="@ex.BranchID">
+                        Edit
+                    </button>
+
+                    <a asp-action="Delete" asp-route-id="@ex.SalesExecutiveID" class="btn btn-sm btn-danger">Delete</a>
+
+                    <button class="btn btn-sm btn-info details-btn" data-id="@ex.SalesExecutiveID">
+                        Details
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createSEModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Sales Executive</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group mb-2">
+                        <label for="BranchID">Branch</label>
+                        <select id="BranchID" name="BranchID" class="form-control" asp-items="ViewBag.Branches">
+                            <option value="">-- Select Branch --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Name">Name</label>
+                        <input id="Name" name="Name" type="text" class="form-control" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Email">Email</label>
+                        <input id="Email" name="Email" type="email" class="form-control" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Phone">Phone</label>
+                        <input id="Phone" name="Phone" type="tel" class="form-control" required />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editSEModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Sales Executive</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="Edit_SalesExecutiveID" name="SalesExecutiveID" />
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_BranchID">Branch</label>
+                        <select id="Edit_BranchID" name="BranchID" class="form-control" asp-items="ViewBag.Branches">
+                            <option value="">-- Select Branch --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_Name">Name</label>
+                        <input id="Edit_Name" name="Name" type="text" class="form-control" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_Email">Email</label>
+                        <input id="Edit_Email" name="Email" type="email" class="form-control" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_Phone">Phone</label>
+                        <input id="Edit_Phone" name="Phone" type="tel" class="form-control" required />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sales Executive Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Edit Modal functionality
+        var editModal = document.getElementById("editSEModal");
+
+        editModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget;
+
+            var id = button.getAttribute("data-id");
+            var name = button.getAttribute("data-name");
+            var email = button.getAttribute("data-email");
+            var phone = button.getAttribute("data-phone");
+            var branchId = button.getAttribute("data-branchid");
+
+            document.getElementById("Edit_SalesExecutiveID").value = id;
+            document.getElementById("Edit_Name").value = name;
+            document.getElementById("Edit_Email").value = email;
+            document.getElementById("Edit_Phone").value = phone;
+            document.getElementById("Edit_BranchID").value = branchId;
+        });
+
+        // Details button functionality
+        document.querySelectorAll('.details-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                var executiveId = this.getAttribute('data-id');
+                showDetails(executiveId);
+            });
+        });
+    });
+
+    function tableSearch() {
+        let input = document.getElementById("myInput");
+        let filter = input.value.toUpperCase();
+        let table = document.getElementsByClassName("table")[0];
+        let tr = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < tr.length; i++) {
+            let td = tr[i].getElementsByTagName("td")[1]; // search by Name column
+            if (td) {
+                let txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function showDetails(executiveId) {
+        var row = document.getElementById('row-' + executiveId);
+
+        if (row) {
+            var cells = row.getElementsByTagName('td');
+            var detailsHtml = `
+                <div><strong>ID:</strong> ${cells[0].innerText}</div>
+                <div><strong>Name:</strong> ${cells[1].innerText}</div>
+                <div><strong>Email:</strong> ${cells[2].innerText}</div>
+                <div><strong>Phone:</strong> ${cells[3].innerText}</div>
+                <div><strong>Branch:</strong> ${cells[4].innerText}</div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = detailsHtml;
+            var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
+    }
+</script>

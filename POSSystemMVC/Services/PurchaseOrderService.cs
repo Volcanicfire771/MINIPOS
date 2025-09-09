@@ -13,12 +13,11 @@ namespace POSSystemMVC.Services
             _context = context;
         }
 
-        public IEnumerable<PurchaseOrder> GetAll()
-        {
-            return _context.PurchaseOrders
+        public IEnumerable<PurchaseOrder> GetAll() { return _context.PurchaseOrders
                 .Include(p => p.Vendor)
                 .Include(p => p.Branch).ToList();
         }
+        
         public void Update(PurchaseOrder order)
         {
             _context.PurchaseOrders.Update(order);

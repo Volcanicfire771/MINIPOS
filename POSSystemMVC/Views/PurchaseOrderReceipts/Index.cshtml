@@ -1,12 +1,12 @@
 ﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrderReceipt>
-
+@* 
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         @TempData["Error"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-}
+} *@
 
 <h2>Purchase Order Receipts</h2>
 <a class="btn btn-primary" asp-action="Index" asp-controller="PurchaseOrders">All Purchase Orders</a>
@@ -18,7 +18,7 @@
         <option value="">Filter by Warehouse</option>
     </select>
 
-    <select name="PurchaseOrderID" asp-items="ViewBag.PurchaseOrders" class="form-control">
+    <select name="PurchaseOrderID" asp-items="ViewBag.PurchaseOrders" class="form-control"> 
         <option value="">Filter by PO</option>
     </select>
     <br />

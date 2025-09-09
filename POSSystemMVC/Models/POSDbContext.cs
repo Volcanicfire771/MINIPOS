@@ -19,6 +19,7 @@ namespace POSSystemMVC.Models
 
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
+        public DbSet<SalesExecutive> SalesExecutives { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +58,27 @@ namespace POSSystemMVC.Models
                 .HasOne(r => r.PurchaseOrder)
                 .WithMany(po => po.PurchaseOrderReceipts)
                 .HasForeignKey(r => r.PurchaseOrderID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(i => i.SalesExecutive)
+                .WithMany(se => se.Invoices)
+                .HasForeignKey(i => i.SalesExecutiveID)
+                .IsRequired(false) // Make it optional
+                .OnDelete(DeleteBehavior.Restrict); // Or Restrict
+
+            modelBuilder.Entity<SalesExecutive>()
+                .HasOne(se => se.Branch)
+                .WithMany(b => b.SalesExecutives)
+                .HasForeignKey(se => se.BranchID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure Invoice -> SalesExecutive relationship (make it optional)
+            modelBuilder.Entity<Invoice>()
+                .HasOne(i => i.SalesExecutive)
+                .WithMany(se => se.Invoices)
+                .HasForeignKey(i => i.SalesExecutiveID)
+                .IsRequired(false) // This makes the relationship optional
                 .OnDelete(DeleteBehavior.Restrict);
         }
 

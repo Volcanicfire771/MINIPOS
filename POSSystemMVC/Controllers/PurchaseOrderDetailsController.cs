@@ -59,7 +59,8 @@ public class PurchaseOrderDetailsController : Controller
 
         ViewBag.PurchaseOrders = new SelectList(_orderService.GetAll(), "PurchaseOrderID", "PurchaseOrderID");
         ViewBag.Products = new SelectList(_productService.GetAllProducts(), "ProductID", "code");
-        if (id.HasValue) {
+        if (id.HasValue)
+        {
             var details = _orderDetailService.GetByPurchaseOrderId(id);
             return View(details);
         }
@@ -74,8 +75,8 @@ public class PurchaseOrderDetailsController : Controller
     {
         if (ModelState.IsValid)
         {
-            _orderDetailService.Add(detail);   
-            return RedirectToAction(nameof(Index), new {purchaseOrderID = detail.PurchaseOrderID});
+            _orderDetailService.Add(detail);
+            return RedirectToAction(nameof(Index), new { purchaseOrderID = detail.PurchaseOrderID });
         }
 
         // Rebuild dropdowns if validation fails

@@ -132,7 +132,7 @@ public class PurchaseOrderReceiptsController : Controller
     {
         try
         {
-            _orderService.Delete(id);
+            _orderReceiptService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)

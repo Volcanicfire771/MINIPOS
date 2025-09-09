@@ -22,8 +22,13 @@ builder.Services.AddScoped<ISalesOrderDetailService, SalesOrderDetailService>();
 builder.Services.AddScoped<IPurchaseOrderReceiptService, PurchaseOrderReceiptService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IInvoiceDetailService, InvoiceDetailService>();
+builder.Services.AddScoped<ISalesExecutiveService, SalesExecutiveService>();
 
 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+});
 
 
 builder.Services.AddDbContext<POSDbContext>(options => 
