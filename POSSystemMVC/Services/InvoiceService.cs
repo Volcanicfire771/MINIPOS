@@ -1,41 +1,55 @@
-﻿using POSSystemMVC.Models;
-using POSSystemMVC.Services.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using POSSystemMVC.Models;
 
-namespace POSSystemMVC.Services
+public class InvoiceService : IInvoiceService
 {
-    public class InvoiceService : IInvoiceService
+    private readonly POSDbContext _context;
+
+    public InvoiceService(POSDbContext context)
     {
-        private readonly POSDbContext _context;
+        _context = context;
+    }
 
-        public InvoiceService(POSDbContext context)
+    public IEnumerable<Invoice> GetAll()
+        => _context.Invoices
+                   .Include(i => i.SalesOrder)
+                   .Include(i => i.InvoiceDetails)
+                   .ToList();
+
+    public IEnumerable<Invoice> GetByStatus(bool status)
+        => _context.Invoices
+                   .Include(i => i.SalesOrder)
+                   .Include(i => i.InvoiceDetails)
+                   .Where(i => i.Status == status)
+                   .ToList();
+
+    public Invoice GetById(int id)
+        => _context.Invoices
+                   .Include(i => i.SalesOrder)
+                   .Include(i => i.InvoiceDetails)
+                   .FirstOrDefault(i => i.InvoiceID == id);
+
+    public void Add(Invoice invoice)
+    {
+        _context.Invoices.Add(invoice);
+        Save();
+    }
+
+    public void Update(Invoice invoice)
+    {
+        _context.Invoices.Update(invoice);
+        Save();
+    }
+
+    public void Delete(int id)
+    {
+        var invoice = _context.Invoices.Find(id);
+        if (invoice != null)
         {
-            _context = context;
-        }
-
-        public IEnumerable<Invoice> GetAll() => _context.Invoices.ToList();
-
-        public Invoice? GetById(int id) => _context.Invoices.Find(id);
-
-        public void Add(Invoice invoice)
-        {
-            _context.Invoices.Add(invoice);
-            _context.SaveChanges();
-        }
-
-        public void Update(Invoice invoice)
-        {
-            _context.Invoices.Update(invoice);
-            _context.SaveChanges();
-        }
-
-        public void Delete(int id)
-        {
-            var invoice = _context.Invoices.Find(id);
-            if (invoice != null)
-            {
-                _context.Invoices.Remove(invoice);
-                _context.SaveChanges();
-            }
+            _context.Invoices.Remove(invoice);
+            Save();
         }
     }
+
+    public void Save() => _context.SaveChanges();
 }

@@ -70,6 +70,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="PurchaseOrderReceipts" asp-action="index">POReceipt</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Invoices" asp-action="index">Invoice</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="InvoiceDetails" asp-action="index">Invoice Details</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -95,6 +103,10 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+
 
 </body>
 </html>

@@ -1,5 +1,13 @@
 ﻿@model IEnumerable<POSSystemMVC.Models.SalesOrder>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div style="display:flex;justify-content:space-between;">
     <h2>All Sales Orders</h2>
     <a class="btn btn-primary" asp-action="Index" asp-controller="SalesOrderDetails">All Details</a>

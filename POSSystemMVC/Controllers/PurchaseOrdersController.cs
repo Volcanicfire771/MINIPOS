@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services.Interfaces;
 using POSSystemMVC.Services.Intrefaces;
@@ -72,5 +73,20 @@ public class PurchaseOrdersController : Controller
         ViewBag.Branches = new SelectList(_branchService.GetAll(), "BranchID", "Name", order.BranchID);
 
         return View(order);
+    }
+
+    public IActionResult Delete(int id) 
+    {
+        try
+        {
+            _orderService.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            TempData["Error"] = "Cannot delete this purchase order because it is used in other records";
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

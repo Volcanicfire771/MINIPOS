@@ -97,10 +97,19 @@ public class PurchaseOrderDetailsController : Controller
 
 
     public IActionResult Delete(int id)
-{
-    _orderDetailService.Delete(id);
-    return RedirectToAction(nameof(Index));
-}
+    {
+        try
+        {
+            _orderDetailService.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            TempData["Error"] = "Cannot delete this purchase order because it is used in other records";
+            return RedirectToAction(nameof(Index));
+        }
+
+    }
 
 
 

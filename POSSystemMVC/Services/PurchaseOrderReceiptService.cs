@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
-using POSSystemMVC.Services.Intrefaces;
+using POSSystemMVC.Services.Interfaces;
 
 public class PurchaseOrderReceiptService : IPurchaseOrderReceiptService
 {
@@ -13,36 +13,68 @@ public class PurchaseOrderReceiptService : IPurchaseOrderReceiptService
 
     public IEnumerable<PurchaseOrderReceipt> GetAll()
         => _context.PurchaseOrderReceipts
+                   .Include(r => r.PurchaseOrder)
                    .Include(r => r.Warehouse)
                    .Include(r => r.Product)
-                   .Include(r => r.PurchaseOrder)
                    .ToList();
 
-    public PurchaseOrderReceipt GetById(int id)
-        => _context.PurchaseOrderReceipts.Find(id);
+    public PurchaseOrderReceipt? GetById(int id)
+        => _context.PurchaseOrderReceipts
+                   .Include(r => r.PurchaseOrder)
+                   .Include(r => r.Warehouse)
+                   .Include(r => r.Product)
+                   .FirstOrDefault(r => r.ReceiptID == id);
 
     public void Add(PurchaseOrderReceipt receipt)
     {
+        // 1. Add the new receipt record (this creates a NEW ROW every time)
         _context.PurchaseOrderReceipts.Add(receipt);
-        UpdateWarehouseStock(receipt.WarehouseID, receipt.ProductID, receipt.ReceivedQuantity);
-        Save();
-    }
 
-    public void Update(PurchaseOrderReceipt receipt)
-    {
-        var existing = _context.PurchaseOrderReceipts
-                               .AsNoTracking()
-                               .FirstOrDefault(r => r.ReceiptID == receipt.ReceiptID);
+        // 2. Update warehouse stock (this updates/combines quantities)
+        var stock = _context.WarehouseStocks
+            .FirstOrDefault(ws => ws.WarehouseID == receipt.WarehouseID
+                               && ws.ProductID == receipt.ProductID);
 
-        if (existing != null)
+        if (stock != null)
         {
-            // adjust stock difference
-            int diff = receipt.ReceivedQuantity - existing.ReceivedQuantity;
-            UpdateWarehouseStock(receipt.WarehouseID, receipt.ProductID, diff);
+            // Update existing stock
+            stock.Quantity += receipt.ReceivedQuantity;
+            _context.WarehouseStocks.Update(stock);
+        }
+        else
+        {
+            // Create new stock record
+            var newStock = new WarehouseStock
+            {
+                WarehouseID = receipt.WarehouseID,
+                ProductID = receipt.ProductID,
+                Quantity = receipt.ReceivedQuantity
+            };
+            _context.WarehouseStocks.Add(newStock);
         }
 
-        _context.PurchaseOrderReceipts.Update(receipt);
-        Save();
+        // 3. Save all changes
+        _context.SaveChanges();
+    }
+
+    public void Update(int id)
+    {
+        var receipt = _context.PurchaseOrderReceipts.Find(id);
+        if (receipt != null)
+        {
+            _context.PurchaseOrderReceipts.Update(receipt);
+            _context.SaveChanges();
+        }
+    }
+
+    public IEnumerable<PurchaseOrderReceipt> GetByPurchaseOrderId(int? purchaseOrderId)
+    {
+        return _context.PurchaseOrderReceipts
+            .Include(d => d.Product)
+            .Include(d => d.PurchaseOrder)
+            .Include(d => d.Warehouse)
+            .Where(d => d.PurchaseOrderID == purchaseOrderId)
+            .ToList();
     }
 
     public void Delete(int id)
@@ -50,39 +82,28 @@ public class PurchaseOrderReceiptService : IPurchaseOrderReceiptService
         var receipt = _context.PurchaseOrderReceipts.Find(id);
         if (receipt != null)
         {
-            // rollback stock
-            UpdateWarehouseStock(receipt.WarehouseID, receipt.ProductID, -receipt.ReceivedQuantity);
+            // Reduce warehouse stock when deleting a receipt
+            var stock = _context.WarehouseStocks
+                .FirstOrDefault(ws => ws.WarehouseID == receipt.WarehouseID
+                                   && ws.ProductID == receipt.ProductID);
+
+            if (stock != null)
+            {
+                stock.Quantity -= receipt.ReceivedQuantity;
+
+                // Remove stock record if quantity becomes 0 or negative
+                if (stock.Quantity <= 0)
+                {
+                    _context.WarehouseStocks.Remove(stock);
+                }
+                else
+                {
+                    _context.WarehouseStocks.Update(stock);
+                }
+            }
 
             _context.PurchaseOrderReceipts.Remove(receipt);
-            Save();
-        }
-    }
-
-    public void Save()
-    {
-        _context.SaveChanges();
-    }
-
-    private void UpdateWarehouseStock(int warehouseId, int productId, int qtyChange)
-    {
-        var stock = _context.WarehouseStocks
-                            .FirstOrDefault(ws => ws.WarehouseID == warehouseId && ws.ProductID == productId);
-
-        if (stock == null)
-        {
-            // create new row if stock not exists
-            stock = new WarehouseStock
-            {
-                WarehouseID = warehouseId,
-                ProductID = productId,
-                Quantity = qtyChange
-            };
-            _context.WarehouseStocks.Add(stock);
-        }
-        else
-        {
-            stock.Quantity += qtyChange;
-            _context.WarehouseStocks.Update(stock);
+            _context.SaveChanges();
         }
     }
 }

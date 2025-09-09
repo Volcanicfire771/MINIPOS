@@ -10,7 +10,7 @@ namespace POSSystemMVC.Models
         public int InvoiceDetailID { get; set; }
         public int InvoiceID { get; set; }
         public int ProductID { get; set; }
-
+        public int WarehouseID { get; set; }
 
         public int Quantity { get; set; } = 0;
 
@@ -19,6 +19,8 @@ namespace POSSystemMVC.Models
 
         [ValidateNever]
         public Product Product { get; set; }
+        [ValidateNever]
+        public Warehouse Warehouse { get; set; }
     }
 
 }

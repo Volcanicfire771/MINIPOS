@@ -20,6 +20,7 @@ namespace POSSystemMVC.Models
 
 
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public ICollection<SalesOrderDetails> SalesOrderDetails { get; set; } = new List<SalesOrderDetails>();
 
 
     }

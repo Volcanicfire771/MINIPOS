@@ -47,22 +47,31 @@ public class WarehousesController : Controller
     }
 
     [HttpPost]
-public IActionResult Update([FromBody] Warehouse model)
-{
-    if (ModelState.IsValid)
+    [ValidateAntiForgeryToken]
+    public IActionResult Update(Warehouse warehouse)
     {
-        _warehouseService.Update(model);
-        return Ok();
+        if (ModelState.IsValid)
+        {
+            _warehouseService.Update(warehouse);
+            return RedirectToAction(nameof(Index));
+        }
+        return View(warehouse);
     }
 
-    return BadRequest(ModelState);
-}
+    public IActionResult Delete(int id)
+    {
+        try
+        {
+            _warehouseService.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            TempData["Error"] = "Cannot delete this purchase order because it is used in other records";
+            return RedirectToAction(nameof(Index));
+        }
 
-public IActionResult Delete(int id)
-{
-        _warehouseService.Delete(id);
-    return RedirectToAction(nameof(Index));
-}
+    }
 
 
 

@@ -1,5 +1,13 @@
 ﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrderDetails>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div style="display:flex;justify-content:space-between;align-items:center;">
     <h2>All Purchase Order Details</h2>
     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPODModal">
@@ -47,6 +55,13 @@
                     <button class="btn btn-sm btn-info details-btn" data-id="@pod.PurchaseOrderDetailsID">
                         Details
                     </button>
+
+                    <a class="btn btn-sm btn-info"
+                       asp-controller="PurchaseOrderReceipts"
+                       asp-action="Index"
+                       asp-route-purchaseOrderID="@pod.PurchaseOrderID">
+                        View Receipts
+                    </a>
                 </td>
             </tr>
         }

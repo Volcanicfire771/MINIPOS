@@ -1,0 +1,51 @@
+﻿@model POSSystemMVC.Models.Invoice
+
+<!-- Create Modal -->
+<div class="modal fade" id="createInvoiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Invoice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group mb-2">
+                        <label for="InvoiceDate">Invoice Date</label>
+                        <input asp-for="InvoiceDate" class="form-control" type="date" />
+                        <span asp-validation-for="InvoiceDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Amount">Amount</label>
+                        <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Status">Status</label>
+                        <select asp-for="Status" class="form-control">
+                            <option value="">-- Select Status --</option>
+                            <option value="true">Paid</option>
+                            <option value="false">Unpaid</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="SalesOrderID">Sales Order</label>
+                        <select asp-for="SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrders"></select>
+                        <span asp-validation-for="SalesOrderID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

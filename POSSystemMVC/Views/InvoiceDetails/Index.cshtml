@@ -1,0 +1,94 @@
+﻿@model IEnumerable<POSSystemMVC.Models.InvoiceDetail>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2>Invoice Details</h2>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createInvoiceDetailModal">
+        Add Invoice Detail
+    </button>
+</div>
+
+<!-- Filter by Invoice -->
+<form method="get" asp-action="Index" class="my-3">
+    <select name="invoiceId" asp-items="ViewBag.Invoices" class="form-control" style="width:200px;display:inline-block;">
+        <option value="">-- All Invoices --</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Invoice</th>
+            <th>SO</th>
+            <th>Warehouse</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model)
+        {
+            <tr>
+                <td>@detail.InvoiceDetailID</td>
+                <td>@detail.Invoice?.InvoiceID</td>
+                <td>@detail.Invoice?.SalesOrderID</td>
+                <td>@detail.Warehouse?.Name</td>
+                <td>@detail.Invoice?.Amount</td>
+                <td>@(detail.Invoice.Status ? "Paid" : "Unpaid")</td>
+                <td>@detail.Product?.code</td>
+                <td>@detail.Quantity</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@detail.InvoiceDetailID" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createInvoiceDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Invoice Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="createInvoiceDetailBody">
+                @await Html.PartialAsync("_CreateInvoiceDetailPartial", new POSSystemMVC.Models.InvoiceDetail())
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on("submit", "#createInvoiceDetailForm", function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        $("#createInvoiceDetailBody").html(response);
+                    }
+                }
+            });
+        });
+    </script>
+}

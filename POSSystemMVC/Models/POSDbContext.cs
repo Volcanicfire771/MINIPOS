@@ -28,36 +28,36 @@ namespace POSSystemMVC.Models
             modelBuilder.Entity<Warehouse>()
                 .HasOne(w => w.Branch)
                 .WithMany(b => b.Warehouses)
-                .HasForeignKey(w => w.BranchID);
+                .HasForeignKey(w => w.BranchID)
+                .OnDelete(DeleteBehavior.Restrict); // إضافة هذه السطر
 
             // Branch ↔ PurchaseOrder (1:N)
             modelBuilder.Entity<PurchaseOrder>()
                 .HasOne(po => po.Branch)
                 .WithMany(b => b.PurchaseOrders)
-                .HasForeignKey(po => po.BranchID);
+                .HasForeignKey(po => po.BranchID)
+                .OnDelete(DeleteBehavior.Restrict); // إضافة هذه السطر
 
             // Vendor ↔ PurchaseOrder (1:N)
             modelBuilder.Entity<PurchaseOrder>()
                 .HasOne(po => po.Vendor)
                 .WithMany(v => v.PurchaseOrders)
-                .HasForeignKey(po => po.VendorID);
+                .HasForeignKey(po => po.VendorID)
+                .OnDelete(DeleteBehavior.Restrict); // إضافة هذه السطر
 
             // PurchaseOrderReceipt → Warehouse
             modelBuilder.Entity<PurchaseOrderReceipt>()
                 .HasOne(r => r.Warehouse)
                 .WithMany(w => w.PurchaseOrderReceipts)
                 .HasForeignKey(r => r.WarehouseID)
-                .OnDelete(DeleteBehavior.Restrict); // ❌ no cascade here
+                .OnDelete(DeleteBehavior.Restrict);
 
             // PurchaseOrderReceipt → PurchaseOrder
             modelBuilder.Entity<PurchaseOrderReceipt>()
                 .HasOne(r => r.PurchaseOrder)
                 .WithMany(po => po.PurchaseOrderReceipts)
                 .HasForeignKey(r => r.PurchaseOrderID)
-                .OnDelete(DeleteBehavior.Cascade); // ✅ keep cascade here
-
-
-
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public POSDbContext(DbContextOptions options) : base(options)

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using POSSystemMVC.Models;
 using POSSystemMVC.Services.Intrefaces;
 
@@ -96,8 +97,17 @@ namespace POSSystemMVC.Controllers
 
         public IActionResult Delete(int id)
         {
-            _service.DeleteProduct(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _service.DeleteProduct(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["Error"] = "Cannot delete this purchase order because it is used in other records";
+                return RedirectToAction(nameof(Index));
+            }
+
         }
     }
 }

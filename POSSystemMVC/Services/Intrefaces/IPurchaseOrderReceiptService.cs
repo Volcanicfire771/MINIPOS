@@ -3,9 +3,10 @@
 public interface IPurchaseOrderReceiptService
 {
     IEnumerable<PurchaseOrderReceipt> GetAll();
-    PurchaseOrderReceipt GetById(int id);
+    //PurchaseOrderReceipt GetById(int id);
+    IEnumerable<PurchaseOrderReceipt> GetByPurchaseOrderId(int? purchaseOrderId);
     void Add(PurchaseOrderReceipt receipt);
-    void Update(PurchaseOrderReceipt receipt);
+    void Update(int id);
     void Delete(int id);
-    void Save();
+    //void Save();
 }

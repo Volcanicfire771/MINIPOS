@@ -1,96 +1,108 @@
-﻿@* @model IEnumerable<POSSystemMVC.Models.Invoice>
+﻿@model IEnumerable<POSSystemMVC.Models.Invoice>
 
-<h2>Purchase Orders</h2>
-<a class="btn btn-primary" asp-action="Index" asp-controller="InvoiceDetails">All Details</a>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-<br />
-<br />
-<form method="get" asp-action="Index" style="padding: 10px;">
-    <select name="branchID" asp-items="ViewBag.Branches" class="form-control">
-        <option value="">Filter by Branch</option>
+<div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2>Invoices</h2>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
+        + Add Invoice
+    </button>
+</div>
+
+<form method="get" asp-action="Index" class="mb-3 mt-3">
+    <select name="status" class="form-control" style="width:200px;display:inline-block;">
+        <option value="">-- All --</option>
+        <option value="true">Paid</option>
+        <option value="false">Unpaid</option>
     </select>
-
-    <select name="vendorID" asp-items="ViewBag.Vendors" class="form-control">
-        <option value="">Filter by Vendor</option>
-    </select>
-    <br />
     <button type="submit" class="btn btn-primary">Filter</button>
 </form>
 
-<!-- Create Button -->
-<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createPurchaseOrderModal">
-    New Order
-</button>
-
-<table class="table mt-3">
+<table class="table">
     <thead>
         <tr>
             <th>ID</th>
-            <th>Branch</th>
-            <th>Order Date</th>
-            <th>Vendor</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Sales Order</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var order in Model)
+        @foreach (var invoice in Model)
         {
             <tr>
-                <td>@order.PurchaseOrderID</td>
-                <td>@order.Branch?.Name</td>
-                <td>@order.OrderDate.ToShortDateString()</td>
-                <td>@order.Vendor?.Name</td>
+                <td>@invoice.InvoiceID</td>
+                <td>@invoice.InvoiceDate.ToShortDateString()</td>
+                <td>@invoice.Amount</td>
+                <td>@(invoice.Status ? "Paid" : "Unpaid")</td>
+                <td>@invoice.SalesOrderID</td>
                 <td>
                     <a class="btn btn-sm btn-info"
-                       asp-controller="PurchaseOrderDetails"
+                       asp-controller="InvoiceDetails"
                        asp-action="Index"
-                       asp-route-purchaseOrderID="@order.PurchaseOrderID">
+                       asp-route-invoiceId="@invoice.InvoiceID">
                         View Details
                     </a>
 
                     <button type="button"
                             class="btn btn-sm btn-warning"
                             data-bs-toggle="modal"
-                            data-bs-target="#editPurchaseOrderModal"
-                            data-id="@order.PurchaseOrderID"
-                            data-branch="@order.BranchID"
-                            data-vendor="@order.VendorID"
-                            data-date="@order.OrderDate.ToString("yyyy-MM-dd")">
+                            data-bs-target="#editInvoiceModal"
+                            data-id="@invoice.InvoiceID"
+                            data-date="@invoice.InvoiceDate.ToString("yyyy-MM-dd")"
+                            data-amount="@invoice.Amount"
+                            data-status="@invoice.Status"
+                            data-salesorder="@invoice.SalesOrderID">
                         Edit
                     </button>
                 </td>
+
             </tr>
         }
     </tbody>
 </table>
 
 <!-- Create Modal -->
-<div class="modal fade" id="createPurchaseOrderModal" tabindex="-1">
+<div class="modal fade" id="createInvoiceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Purchase Order</h5>
+                <h5 class="modal-title">Create Invoice</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="Create" method="post">
                     <div class="form-group mb-2">
-                        <label for="BranchID">Branch</label>
-                        <select id="BranchID" name="BranchID" class="form-control" asp-items="ViewBag.Branches">
-                            <option value="">-- Select Branch --</option>
+                        <label for="InvoiceDate">Invoice Date</label>
+                        <input id="InvoiceDate" name="InvoiceDate" class="form-control" type="date" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Amount">Amount</label>
+                        <input id="Amount" name="Amount" class="form-control" type="number" step="0.01" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Status">Status</label>
+                        <select id="Status" name="Status" class="form-control">
+                            <option value="true">Paid</option>
+                            <option value="false">Unpaid</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-2">
-                        <label for="VendorID">Vendor</label>
-                        <select id="VendorID" name="VendorID" class="form-control" asp-items="ViewBag.Vendors">
-                            <option value="">-- Select Vendor --</option>
+                        <label for="SalesOrderID">Sales Order</label>
+                        <select id="SalesOrderID" name="SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrders">
+                            <option value="">-- Select Sales Order --</option>
                         </select>
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label for="OrderDate">Order Date</label>
-                        <input id="OrderDate" name="OrderDate" class="form-control" type="date" />
                     </div>
 
                     <div class="modal-footer">
@@ -104,34 +116,40 @@
 </div>
 
 <!-- Edit Modal -->
-<div class="modal fade" id="editPurchaseOrderModal" tabindex="-1">
+<div class="modal fade" id="editInvoiceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Purchase Order</h5>
+                <h5 class="modal-title">Edit Invoice</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="Update" method="post">
-                    <input type="hidden" id="Edit_PurchaseOrderID" name="PurchaseOrderID" />
+                    <input type="hidden" id="Edit_InvoiceID" name="InvoiceID" />
 
                     <div class="form-group mb-2">
-                        <label for="Edit_BranchID">Branch</label>
-                        <select id="Edit_BranchID" name="BranchID" class="form-control" asp-items="ViewBag.Branches">
-                            <option value="">-- Select Branch --</option>
+                        <label for="Edit_InvoiceDate">Invoice Date</label>
+                        <input id="Edit_InvoiceDate" name="InvoiceDate" class="form-control" type="date" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_Amount">Amount</label>
+                        <input id="Edit_Amount" name="Amount" class="form-control" type="number" step="0.01" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="Edit_Status">Status</label>
+                        <select id="Edit_Status" name="Status" class="form-control">
+                            <option value="true">Paid</option>
+                            <option value="false">Unpaid</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-2">
-                        <label for="Edit_VendorID">Vendor</label>
-                        <select id="Edit_VendorID" name="VendorID" class="form-control" asp-items="ViewBag.Vendors">
-                            <option value="">-- Select Vendor --</option>
+                        <label for="Edit_SalesOrderID">Sales Order</label>
+                        <select id="Edit_SalesOrderID" name="SalesOrderID" class="form-control" asp-items="ViewBag.SalesOrders">
+                            <option value="">-- Select Sales Order --</option>
                         </select>
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label for="Edit_OrderDate">Order Date</label>
-                        <input id="Edit_OrderDate" name="OrderDate" class="form-control" type="date" />
                     </div>
 
                     <div class="modal-footer">
@@ -146,20 +164,33 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var editModal = document.getElementById("editPurchaseOrderModal");
+        var showModal = '@ViewBag.ShowCreateModal';
+        if (showModal === 'True') {
+            var modal = new bootstrap.Modal(document.getElementById('createInvoiceModal'));
+            modal.show();
+        }
+    });
+</script>
+
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var editModal = document.getElementById("editInvoiceModal");
 
         editModal.addEventListener("show.bs.modal", function (event) {
             var button = event.relatedTarget;
 
             var id = button.getAttribute("data-id");
-            var branch = button.getAttribute("data-branch");
-            var vendor = button.getAttribute("data-vendor");
             var date = button.getAttribute("data-date");
+            var amount = button.getAttribute("data-amount");
+            var status = button.getAttribute("data-status");
+            var salesOrder = button.getAttribute("data-salesorder");
 
-            document.getElementById("Edit_PurchaseOrderID").value = id;
-            document.getElementById("Edit_BranchID").value = branch;
-            document.getElementById("Edit_VendorID").value = vendor;
-            document.getElementById("Edit_OrderDate").value = date;
+            document.getElementById("Edit_InvoiceID").value = id;
+            document.getElementById("Edit_InvoiceDate").value = date;
+            document.getElementById("Edit_Amount").value = amount;
+            document.getElementById("Edit_Status").value = status.toLowerCase();
+            document.getElementById("Edit_SalesOrderID").value = salesOrder;
         });
     });
-</script> *@
+</script>

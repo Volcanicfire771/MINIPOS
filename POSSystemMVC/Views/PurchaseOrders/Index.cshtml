@@ -1,5 +1,11 @@
 ﻿@model IEnumerable<POSSystemMVC.Models.PurchaseOrder>
-
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <h2>Purchase Orders</h2>
 <a class="btn btn-primary" asp-action="Index" asp-controller="PurchaseOrderDetails">All Details</a>
 
@@ -47,6 +53,9 @@
                        asp-route-purchaseOrderID="@order.PurchaseOrderID">
                         View Details
                     </a>
+
+                    <a asp-action="Delete" asp-route-id="@order.PurchaseOrderID" class="btn btn-sm btn-danger">Delete</a>
+
 
                     <button type="button"
                             class="btn btn-sm btn-warning"

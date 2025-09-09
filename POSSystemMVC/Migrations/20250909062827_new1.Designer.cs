@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POSSystemMVC.Models;
 
@@ -11,9 +12,11 @@ using POSSystemMVC.Models;
 namespace POSSystemMVC.Migrations
 {
     [DbContext(typeof(POSDbContext))]
-    partial class POSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250909062827_new1")]
+    partial class new1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,16 +119,11 @@ namespace POSSystemMVC.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("WarehouseID")
-                        .HasColumnType("int");
-
                     b.HasKey("InvoiceDetailID");
 
                     b.HasIndex("InvoiceID");
 
                     b.HasIndex("ProductID");
-
-                    b.HasIndex("WarehouseID");
 
                     b.ToTable("InvoiceDetails");
                 });
@@ -400,17 +398,9 @@ namespace POSSystemMVC.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("POSSystemMVC.Models.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Invoice");
 
                     b.Navigation("Product");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("POSSystemMVC.Models.PurchaseOrder", b =>
@@ -418,13 +408,13 @@ namespace POSSystemMVC.Migrations
                     b.HasOne("POSSystemMVC.Models.Branch", "Branch")
                         .WithMany("PurchaseOrders")
                         .HasForeignKey("BranchID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("POSSystemMVC.Models.Vendor", "Vendor")
                         .WithMany("PurchaseOrders")
                         .HasForeignKey("VendorID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -462,7 +452,7 @@ namespace POSSystemMVC.Migrations
                     b.HasOne("POSSystemMVC.Models.PurchaseOrder", "PurchaseOrder")
                         .WithMany("PurchaseOrderReceipts")
                         .HasForeignKey("PurchaseOrderID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("POSSystemMVC.Models.Warehouse", "Warehouse")
@@ -521,7 +511,7 @@ namespace POSSystemMVC.Migrations
                     b.HasOne("POSSystemMVC.Models.Branch", "Branch")
                         .WithMany("Warehouses")
                         .HasForeignKey("BranchID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("POSSystemMVC.Models.PurchaseOrder", null)

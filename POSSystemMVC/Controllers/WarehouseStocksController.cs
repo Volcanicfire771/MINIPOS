@@ -77,12 +77,20 @@ public IActionResult Update([FromBody] WarehouseStock model)
     return BadRequest(ModelState);
 }
 
-public IActionResult Delete(int id)
-{
-        _warehouseStockService.Delete(id);
-    return RedirectToAction(nameof(Index));
-}
+    public IActionResult Delete(int id)
+    {
+        try
+        {
+            _warehouseStockService.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            TempData["Error"] = "Cannot delete this purchase order because it is used in other records";
+            return RedirectToAction(nameof(Index));
+        }
 
+    }
 
 
 }

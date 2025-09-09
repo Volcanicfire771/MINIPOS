@@ -24,6 +24,7 @@ namespace POSSystemMVC.Models
 
         public ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
         public ICollection<PurchaseOrderReceipt> PurchaseOrderReceipts { get; set; } = new List<PurchaseOrderReceipt>();
+        public ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; } = new List<PurchaseOrderDetails>();
 
 
     }

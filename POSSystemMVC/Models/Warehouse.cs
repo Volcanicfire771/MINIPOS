@@ -17,8 +17,9 @@ namespace POSSystemMVC.Models
         // Navigation: one warehouse has many stock records
         [ValidateNever]
 
-        public ICollection<WarehouseStock> Stocks { get; set; } = new List<WarehouseStock>();
+        public ICollection<WarehouseStock> WarehouseStocks { get; set; } = new List<WarehouseStock>();
         public ICollection<PurchaseOrderReceipt> PurchaseOrderReceipts { get; set; } = new List<PurchaseOrderReceipt>();
+        public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
     }
 }
