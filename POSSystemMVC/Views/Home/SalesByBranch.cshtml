@@ -1,0 +1,17 @@
+﻿<canvas id="salesChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    var salesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: @Html.Raw(ViewBag.BranchLabels),
+            datasets: [{
+                label: 'Sales by Branch',
+                data: @Html.Raw(ViewBag.BranchTotals),
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+</script>

@@ -4,6 +4,7 @@ using POSSystemMVC.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 public class GraphController : Controller
 {
@@ -113,4 +114,7 @@ public class GraphController : Controller
 
         return Json(data);
     }
+
+    
+
 }

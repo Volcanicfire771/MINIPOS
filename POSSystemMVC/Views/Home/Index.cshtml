@@ -1,12 +1,77 @@
 ﻿@{
-    ViewData["Title"] = "MINIPOS";
+    ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    @* <a class="btn btn-primary" asp-action="Products">Products</a> *@
-    <a class="btn btn-dark" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
-
-
+<div class="text-center mb-4">
+    <h1 class="display-4">Dashboard</h1>
 </div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Sales by Branch</h3>
+        <canvas id="branchChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h3 id="executiveTitle">Sales by Executives</h3>
+        <canvas id="executiveChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var branchIds = @Html.Raw(ViewBag.BranchIds);
+    var branchLabels = @Html.Raw(ViewBag.BranchLabels);
+    var branchTotals = @Html.Raw(ViewBag.BranchTotals);
+
+    var ctx = document.getElementById('branchChart').getContext('2d');
+    var branchChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: branchLabels,
+            datasets: [{
+                label: 'Sales by Branch',
+                data: branchTotals,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            onClick: function (evt, elements) {
+                if (elements.length > 0) {
+                    var index = elements[0].index;
+                    var branchId = branchIds[index];
+                    var branchName = branchLabels[index];
+
+                    fetch(`/Home/SalesByExecutive?branchId=${branchId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            var execLabels = data.map(x => x.executive);
+                            var execTotals = data.map(x => x.total);
+
+                            document.getElementById("executiveTitle").innerText =
+                                `Sales by Executives in ${branchName}`;
+
+                            if (window.executiveChartInstance) {
+                                window.executiveChartInstance.destroy();
+                            }
+
+                            var execCtx = document.getElementById('executiveChart').getContext('2d');
+                            window.executiveChartInstance = new Chart(execCtx, {
+                                type: 'bar',
+                                data: {
+                                    labels: execLabels,
+                                    datasets: [{
+                                        label: 'Sales by Executive',
+                                        data: execTotals,
+                                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                                    }]
+                                },
+                                options: { responsive: true }
+                            });
+                        });
+                }
+            }
+        }
+    });
+</script>
